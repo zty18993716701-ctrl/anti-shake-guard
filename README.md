@@ -4,6 +4,8 @@
 
 **不是免 Root 成品，不支持 iPhone。真实 Hook 兼容性、与现有工具的对比测试和法律审查尚未完成。GitHub 托管、免费或开源都不能消除法律风险。**
 
+2026-09-25 验证：41 项 JVM/Robolectric 测试通过；[云端构建与 8 项未启用 Hook 的设备基线通过](https://github.com/zty18993716701-ctrl/anti-shake-guard/actions/runs/36128471909)。未加载模块时的保护测试按预期失败，没有将基线通过冒充真实拦截成功。详见[验证证据](docs/verification.md)。
+
 ## 当前能做什么
 
 - 模块首页提供安装检查、保护组/对照组探针入口、测试广告入口和停用说明。未安装、停用或版本不匹配时禁用测试入口；不会把“已安装”显示成“保护已生效”。
@@ -39,6 +41,7 @@ CI 生成的调试 APK 签名可能随全新 runner 改变，不能承诺跨构�
 - [验收标准与对比计划](docs/acceptance.md)
 - [构建与设备黑盒复测](validation/README.md)
 - [验证状态](docs/verification.md)
+- [双轴代码审查](docs/review.md)
 - [安全与发布边界](SECURITY.md)
 - [上游来源与许可证](NOTICE.md)
 

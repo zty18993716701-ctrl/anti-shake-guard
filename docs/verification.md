@@ -4,7 +4,7 @@
 
 本地 JVM / Robolectric：41 项测试通过，包括 8 项纯策略、6 项模块启用引导、3 项 Hook 回滚、24 项靶场测试。
 Android 框架模拟分别使用 API 28 和 35，不执行 Xposed 注入。
-模块与两个靶场均可构建。静态检查及云端基线结果以同一提交的 Actions 运行报告为准。
+模块与两个靶场均可构建，三个本地 APK 签名校验通过。Lint 为 0 错误；模块 4 项、两个靶场各 5 项 warning，未隐藏这些原型界面及配置提醒。
 
 新增的未安装入口、未知父页面、过期版本按钮和 Activity 重建回归均观察到修改前失败、修改后通过。
 传感器证据仍逐事件记录，界面读数改为手动刷新快照；新增回归确认实时证据不持续改写无障碍界面树，修改前失败、修改后通过。
@@ -14,9 +14,23 @@ Android 框架模拟分别使用 API 28 和 35，不执行 Xposed 注入。
 | 本地策略/页面回归 | PASS |
 | 本地 APK 构建 | PASS |
 | 本机 Android Emulator 37.1.11 / API 35 arm64 | 启动失败，SIGILL / init_cache_info；无设备结果 |
-| GitHub Linux / API 35 x86_64 基线 | 工作流已配置，运行结果以 Actions 为准，不预先声明通过 |
+| GitHub Linux / API 35 x86_64 基线 | PASS，8 项；未启用 Hook |
+| 未加载模块时不得通过 hooked 验证 | PASS，按精确失败原因检查，不接受任意报错 |
 | 真实 Root / Xposed 拦截及自动关闭 | NOT RUN |
 | 竞品对照与用户体验 | NOT MEASURED |
 | 法律审查 | NOT DONE |
 
 云端基线通过只说明靶场和测试脚本在未启用 Hook 时能运行；不能证明保护生效。
+
+## 可追溯证据
+
+- 代码提交：`13e7690b18069f13f6e09fcca00fff4021cee398`。
+- [完整成功运行 #3](https://github.com/zty18993716701-ctrl/anti-shake-guard/actions/runs/36128471909)，2026-09-25；构建、测试、Lint、设备基线及负例检查全部成功。
+- [精简原始基线 JSONL](evidence/baseline-13e7690.jsonl)：从该运行日志逐行提取，保留 8 个断言和汇总。两组均收到 123 lux 光线事件，并因真实运动事件跳转；普通/延迟广告可由脚本定位真实按钮点击关闭，缺按钮广告保持不动，正常页面未被操作。
+- `ci-baseline.sh` 在基线后运行 `hooked` 模式，要求它失败，且日志精确包含 `Module not loaded; refusing false positive`；该步骤成功。负例完整日志、设备指纹、传感器列表、JUnit、Lint 与 APK 在 [Actions 产物](https://github.com/zty18993716701-ctrl/anti-shake-guard/actions/runs/36128471909/artifacts/10861580083)，保留 7 天。
+- 此后的交付文档提交仅更新说明和证据，不改变已测试的代码、构建或工作流。
+
+## 本轮修复记录
+
+首次云端运行在 Android SDK 初始化失败，原因是 Action 默认请求已不存在的旧 `tools` 包；限定为 `platform-tools` 后通过。
+第二次运行已通过运动/光线检查，但广告界面树读取返回空根节点。传感器回调持续刷新文字；改为手动显示快照、保持底层实时证据和导航后，第三次同一设备测试完整通过。一次成功复测不等于长期稳定性认证。

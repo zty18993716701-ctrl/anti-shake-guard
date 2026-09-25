@@ -97,7 +97,7 @@ python3 scripts/emulator-smoke.py --serial emulator-5580 --mode hooked
 工具已安装在工作区 `work/toolchains`，AVD 在 `work/avd`。
 Emulator 37.1.11 / API 35 arm64 在此 macOS 环境启动失败：
 无界面引擎为 `SIGILL` / `init_cache_info`；图形引擎报告 Qt 要求的 `neon` 不可用。
-因此本轮没有运行基线或 Hook 模拟器端到端测试，也没有真实广告 SDK 兼容结果。
+因此没有本机模拟器端到端结果，也没有真实广告 SDK 兼容结果。
 保留 APK 和上述严格检查脚本，供可运行的 Root 模拟器环境复验。
 GitHub 工作流另行运行 Linux x86_64 未启用 Hook 的基线；请查看对应提交的运行结果。
 
@@ -107,4 +107,5 @@ GitHub 工作流另行运行 Linux x86_64 未启用 Hook 的基线；请查看�
 这些检查只帮助配置，不将安装状态伪装成有效保护。入口点击时再次检查版本。
 必须传感器 Hook 安装失败时尝试回滚本次已经安装的 Hook；清理失败会附在原始异常中记录。
 靶场启动页因旋转等原因重建时不重复启动测试场景。
+探针文字显示为快照，点击“刷新探针读数”更新；底层事件证据及运动跳转继续实时处理。
 新增代码尚不支持免 Root，不增加真实商业 App 自动关闭规则。
