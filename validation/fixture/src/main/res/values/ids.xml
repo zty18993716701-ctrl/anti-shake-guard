@@ -1,1 +1,5 @@
-<resources><item type="id" name="close_ad" /></resources>
+<resources>
+  <item type="id" name="close_ad" />
+  <item type="id" name="probe_status" />
+  <item type="id" name="refresh_probe" />
+</resources>

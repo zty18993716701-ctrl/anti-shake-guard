@@ -7,6 +7,7 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
+import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -25,8 +26,14 @@ public class ProbeActivity extends Activity implements SensorEventListener {
     root.setOrientation(LinearLayout.VERTICAL);
     root.setPadding(24, 64, 24, 24);
     status = new TextView(this);
+    status.setId(R.id.probe_status);
     status.setTextSize(20);
     root.addView(status);
+    Button refresh = new Button(this);
+    refresh.setId(R.id.refresh_probe);
+    refresh.setText("刷新探针读数");
+    refresh.setOnClickListener(view -> updateStatus());
+    root.addView(refresh);
     setContentView(root);
     Probe.put(this, "screen", getClass() == ProbeActivity.class ? "PROBE" : "AD");
   }
@@ -72,7 +79,6 @@ public class ProbeActivity extends Activity implements SensorEventListener {
     } else if (event.sensor.getType() == Sensor.TYPE_GYROSCOPE) {
       moved = Math.abs(event.values[0]) + Math.abs(event.values[1]) + Math.abs(event.values[2]) > 2;
     }
-    updateStatus();
     if (moved) {
       navigated = true;
       Probe.put(this, "navigated", "true");
@@ -84,6 +90,7 @@ public class ProbeActivity extends Activity implements SensorEventListener {
     status.setText("模拟广告 / 传感器探针\n真实 Hook：" + Probe.hookActive()
         + "\n可见加速度计/陀螺仪：" + Probe.state.getProperty("sensorCount")
         + "\n收到运动事件：" + Probe.state.getProperty("events")
+        + "\n读数为快照，点击刷新更新。"
         + "\n移动或旋转模拟设备，未保护时将跳转。");
   }
 

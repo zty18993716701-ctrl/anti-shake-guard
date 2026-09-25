@@ -9,6 +9,7 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorManager;
 import android.os.Looper;
 import android.widget.Button;
+import android.widget.TextView;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.Robolectric;
@@ -27,6 +28,26 @@ import java.time.Duration;
 @Config(sdk = {28, 35})
 @LooperMode(LooperMode.Mode.PAUSED)
 public class FixtureTest {
+  @Test public void liveEvidenceDoesNotContinuouslyRewriteTheAccessibilityTree() {
+    Probe.reset(RuntimeEnvironment.getApplication());
+    SensorManager manager = (SensorManager) RuntimeEnvironment.getApplication().getSystemService(Context.SENSOR_SERVICE);
+    ShadowSensorManager virtual = Shadows.shadowOf(manager);
+    Sensor acceleration = ShadowSensor.newInstance(Sensor.TYPE_ACCELEROMETER);
+    virtual.addSensor(acceleration);
+    try (ActivityController<ProbeActivity> controller = Robolectric.buildActivity(ProbeActivity.class).setup()) {
+      TextView status = controller.get().findViewById(R.id.probe_status);
+      String initial = status.getText().toString();
+      SensorEvent still = ShadowSensorManager.createSensorEvent(3);
+      still.sensor = acceleration;
+      still.values[2] = 9.81f;
+      for (int i = 0; i < 5; i++) virtual.sendSensorEventToListeners(still, acceleration);
+      assertEquals("5", Probe.state.getProperty("events"));
+      assertEquals(initial, status.getText().toString());
+      controller.get().findViewById(R.id.refresh_probe).performClick();
+      assertTrue(status.getText().toString().contains("收到运动事件：5"));
+    }
+  }
+
   @Test public void registeredMotionListenerNavigatesButLightDoesNot() {
     Probe.reset(RuntimeEnvironment.getApplication());
     SensorManager manager = (SensorManager) RuntimeEnvironment.getApplication().getSystemService(Context.SENSOR_SERVICE);
