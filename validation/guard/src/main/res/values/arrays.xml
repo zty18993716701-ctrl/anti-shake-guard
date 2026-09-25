@@ -1,0 +1,5 @@
+<resources>
+  <string-array name="xposed_scope">
+    <item>dev.antishake.fixture.protectedapp</item>
+  </string-array>
+</resources>

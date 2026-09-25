@@ -1,0 +1,23 @@
+<resources>
+  <string name="app_name">屏蔽摇一摇跳转插件</string>
+  <string name="setup_title">屏蔽摇一摇跳转插件 · 0.2</string>
+  <string name="setup_warning">实验版，需 Root / Xposed 兼容框架。不是安装即用，也不适用于 iPhone。GitHub 托管或开源不等于没有法律风险。</string>
+  <string name="setup_steps">启用清单\n1. 安装本模块和两个测试靶场 APK。\n2. 在你已有的 Xposed 兼容管理器中启用本模块。\n3. 作用域仅勾选「摇一摇靶场 · 受保护」，不要勾选对照组、系统应用或其他应用。\n4. 强制停止两个靶场，再重新打开。此应用不会自动安装 Root 或修改作用域。</string>
+  <string name="protected_label">保护组</string>
+  <string name="control_label">对照组</string>
+  <string name="installed">已安装（版本匹配；不代表 Hook 生效）</string>
+  <string name="missing">未安装</string>
+  <string name="disabled">已停用，请先在系统设置中启用</string>
+  <string name="unsupported">版本不匹配，请安装同一构建中的靶场</string>
+  <string name="unverified">拦截效果：未验证（安装完成不代表保护生效）</string>
+  <string name="open_protected">打开保护组探针</string>
+  <string name="open_control">打开对照组探针</string>
+  <string name="open_ad">测试保护组广告关闭</string>
+  <string name="open_normal">检查普通页面不被误点</string>
+  <string name="check_instructions">先移动设备测试对照组，确认会跳转；再测试保护组，检查真实 Hook 为 true、运动事件为 0、没有跳转。严格验收仍需运行仓库内的黑盒脚本；本页不会把手工勾选当作测试通过。</string>
+  <string name="rollback_instructions">停用 / 恢复\n在框架管理器取消作用域或停用模块，再到两个靶场的系统设置中强制停止并重新打开。重启本模块界面不能恢复目标进程。\n保护持续至目标进程退出，包括后台；可能影响体感、方向、计步功能。自动关闭只支持本项目靶场 v1，不支持商业 App。</string>
+  <string name="open_fixture_settings">打开保护组系统设置（可强制停止）</string>
+  <string name="setup_ready">仅检查两个靶场的安装情况，不收集应用列表或上传数据。</string>
+  <string name="launch_failed">无法打开：应用可能已卸载、停用或被系统限制。请返回并重新检查安装情况。</string>
+  <string name="credits">基于 Wardell Bagby 的 Sensor Disabler（MIT）。兼容性测试与法律审查尚未完成。</string>
+</resources>

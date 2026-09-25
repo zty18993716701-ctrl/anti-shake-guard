@@ -1,0 +1,43 @@
+plugins { id 'com.android.application' }
+android {
+  namespace 'dev.antishake.fixture'
+  compileSdk 35
+  defaultConfig {
+    applicationId 'dev.antishake.fixture'
+    minSdk 26
+    targetSdk 35
+    versionCode 1
+    versionName '1.0'
+  }
+  flavorDimensions 'protection'
+  productFlavors {
+    protectedApp {
+      dimension 'protection'
+      applicationIdSuffix '.protectedapp'
+      resValue 'string', 'app_name', '摇一摇靶场 · 受保护'
+    }
+    control {
+      dimension 'protection'
+      applicationIdSuffix '.control'
+      resValue 'string', 'app_name', '摇一摇靶场 · 对照'
+    }
+  }
+  compileOptions {
+    sourceCompatibility JavaVersion.VERSION_1_8
+    targetCompatibility JavaVersion.VERSION_1_8
+  }
+  testOptions {
+    unitTests.includeAndroidResources = true
+    unitTests.all {
+      // Keep Robolectric's Maven lock/cache inside this build, including in sandboxed runs.
+      def testHome = layout.buildDirectory.dir('robolectric-home').get().asFile
+      systemProperty 'user.home', testHome.absolutePath
+      systemProperty 'robolectric.dependency.repo.url', 'https://repo.maven.apache.org/maven2'
+      doFirst { testHome.mkdirs() }
+    }
+  }
+}
+dependencies {
+  testImplementation 'junit:junit:4.13.2'
+  testImplementation 'org.robolectric:robolectric:4.14.1'
+}

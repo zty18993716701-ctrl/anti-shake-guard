@@ -1,0 +1,61 @@
+name: Validation (not Xposed certification)
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: validation-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-and-baseline:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-java@cf277c60eb25467037889841efdb72551f06f6c3 # v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: android-actions/setup-android@9fc6c4e9069bf8d3d10b2204b1fb8f6ef7065407 # v3
+      - name: Install build SDK
+        run: sdkmanager 'platforms;android-35' 'build-tools;34.0.0'
+      - name: Tests, Lint and debug APKs
+        working-directory: validation
+        run: >-
+          ./gradlew --no-daemon :policy:test :guard:testDebugUnitTest
+          :fixture:testProtectedAppDebugUnitTest :fixture:testControlDebugUnitTest
+          :guard:assembleDebug :fixture:assembleDebug
+          :guard:lintDebug :fixture:lintProtectedAppDebug :fixture:lintControlDebug
+      - name: Allow runner access to KVM
+        run: sudo chmod a+rw /dev/kvm
+      - name: Unhooked emulator baseline only
+        uses: ReactiveCircus/android-emulator-runner@a421e43855164a8197daf9d8d40fe71c6996bb0d # v2
+        with:
+          api-level: 35
+          target: google_apis
+          arch: x86_64
+          profile: pixel_2
+          emulator-port: 5554
+          ram-size: 2048M
+          emulator-boot-timeout: 300
+          script: bash validation/scripts/ci-baseline.sh
+      - name: Keep private build artifacts and evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: validation-${{ github.sha }}
+          retention-days: 7
+          path: |
+            validation/guard/build/outputs/apk/debug/*.apk
+            validation/fixture/build/outputs/apk/*/debug/*.apk
+            validation/**/build/test-results/**/*.xml
+            validation/**/build/reports/lint-results-*.txt
+            validation/build/device-evidence/*

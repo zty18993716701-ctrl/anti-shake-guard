@@ -1,0 +1,21 @@
+# 验证状态
+
+2026-09-25，0.2 私有验证版。
+
+本地 JVM / Robolectric：测试包括 8 项纯策略、6 项模块启用引导、3 项 Hook 回滚、20 项靶场测试。
+Android 框架模拟分别使用 API 28 和 35，不执行 Xposed 注入。
+模块与两个靶场均可构建。静态检查及云端基线结果以同一提交的 Actions 运行报告为准。
+
+新增的未安装入口、未知父页面、过期版本按钮和 Activity 重建回归均观察到修改前失败、修改后通过。
+
+| 层级 | 状态 |
+| --- | --- |
+| 本地策略/页面回归 | PASS |
+| 本地 APK 构建 | PASS |
+| 本机 Android Emulator 37.1.11 / API 35 arm64 | 启动失败，SIGILL / init_cache_info；无设备结果 |
+| GitHub Linux / API 35 x86_64 基线 | 工作流已配置，运行结果以 Actions 为准，不预先声明通过 |
+| 真实 Root / Xposed 拦截及自动关闭 | NOT RUN |
+| 竞品对照与用户体验 | NOT MEASURED |
+| 法律审查 | NOT DONE |
+
+云端基线通过只说明靶场和测试脚本在未启用 Hook 时能运行；不能证明保护生效。
