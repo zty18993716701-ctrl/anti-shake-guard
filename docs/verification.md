@@ -1,6 +1,6 @@
 # 验证状态
 
-2026-09-25，0.2 私有验证版。
+2026-09-25，0.2 私有验证版；2026-09-26 增补第二阶段嵌入式 Hook 结果。
 
 本地 JVM / Robolectric：41 项测试通过，包括 8 项纯策略、6 项模块启用引导、3 项 Hook 回滚、24 项靶场测试。
 Android 框架模拟分别使用 API 28 和 35，不执行 Xposed 注入。
@@ -16,6 +16,7 @@ Android 框架模拟分别使用 API 28 和 35，不执行 Xposed 注入。
 | 本机 Android Emulator 37.1.11 / API 35 arm64 | 启动失败，SIGILL / init_cache_info；无设备结果 |
 | GitHub Linux / API 35 x86_64 基线 | PASS，8 项；未启用 Hook |
 | 未加载模块时不得通过 hooked 验证 | PASS，按精确失败原因检查，不接受任意报错 |
+| LSPatch v1.2 真实嵌入式 Hook | PASS，3 轮 × 8 项，随后恢复原始 APK 的 8 项基线通过；[证据](embedded-hook-results.md) |
 | 真实 Root / Xposed 拦截及自动关闭 | NOT RUN |
 | 竞品对照与用户体验 | NOT MEASURED |
 | 法律审查 | NOT DONE |

@@ -2,9 +2,11 @@
 
 基于 Sensor Disabler 的 Android 防运动触发跳转实验工程，当前为 **0.2 私有验证版**。
 
-**不是免 Root 成品，不支持 iPhone。真实 Hook 兼容性、与现有工具的对比测试和法律审查尚未完成。GitHub 托管、免费或开源都不能消除法律风险。**
+**不是免 Root 成品，不支持 iPhone。Root 整机兼容性、与现有工具的对比测试和法律审查尚未完成。GitHub 托管、免费或开源都不能消除法律风险。**
 
 2026-09-25 验证：41 项 JVM/Robolectric 测试通过；[云端构建与 8 项未启用 Hook 的设备基线通过](https://github.com/zty18993716701-ctrl/anti-shake-guard/actions/runs/36128471909)。未加载模块时的保护测试按预期失败，没有将基线通过冒充真实拦截成功。详见[验证证据](docs/verification.md)。
+
+2026-09-26：复用 LSPatch v1.2 的真实 Xposed 引擎，自建靶场三轮保护测试及移除后的恢复基线全部通过。仅此固定组合，不代表 Root 管理器或商业 App 兼容性。[第二阶段结果](docs/embedded-hook-results.md) · [开源项目复用取舍](docs/reuse-research.md)
 
 ## 当前能做什么
 
@@ -45,6 +47,6 @@ CI 生成的调试 APK 签名可能随全新 runner 改变，不能承诺跨构�
 - [安全与发布边界](SECURITY.md)
 - [上游来源与许可证](NOTICE.md)
 
-GitHub Actions 检查 JVM/Robolectric 测试、Lint、APK 构建，以及**未启用 Hook**的 Android 模拟器基线。即使 CI 全绿，也不代表 Xposed 拦截有效；`hooked` 模式必须在实际启用框架的设备上另行验收。
+GitHub Actions 检查 JVM/Robolectric、Lint、APK 构建、无 Hook 基线、LSPatch 嵌入式真实 Hook 三轮测试及恢复基线。CI 全绿只证明固定框架和靶场组合；Root 管理器作用域和真机仍必须另行验收。框架工具及打补丁后的 APK 不进入交付产物。
 
 “更容易启用、更少误伤、更稳定”是待证明的目标，不是已经胜过其他工具的宣传结论。当前不公开发布、不提供商业 App 兼容承诺，不替换广告、不重定向流量、不伪造广告展示/点击事件。
