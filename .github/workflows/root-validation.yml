@@ -1,0 +1,60 @@
+name: Root Vector validation (disposable emulator only)
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: root-validation-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  root-vector:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - uses: actions/setup-java@cf277c60eb25467037889841efdb72551f06f6c3
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: android-actions/setup-android@9fc6c4e9069bf8d3d10b2204b1fb8f6ef7065407
+        with:
+          packages: platform-tools
+      - name: Build unchanged module and fixtures
+        working-directory: validation
+        run: |
+          sdkmanager 'platforms;android-35' 'build-tools;34.0.0'
+          ./gradlew --no-daemon :guard:assembleDebug :fixture:assembleDebug
+      - name: Allow isolated runner KVM
+        run: sudo chmod a+rw /dev/kvm
+      - name: Prepare patched ramdisk using official Magisk tooling
+        uses: ReactiveCircus/android-emulator-runner@a421e43855164a8197daf9d8d40fe71c6996bb0d
+        with:
+          api-level: 35
+          target: google_apis
+          arch: x86_64
+          profile: pixel_2
+          emulator-port: 5554
+          ram-size: 2048M
+          emulator-boot-timeout: 300
+          script: bash validation/scripts/ci-root-prepare.sh
+      - name: Root scope, reboot and disable behavior
+        uses: ReactiveCircus/android-emulator-runner@a421e43855164a8197daf9d8d40fe71c6996bb0d
+        with:
+          api-level: 35
+          target: google_apis
+          arch: x86_64
+          profile: pixel_2
+          emulator-port: 5554
+          ram-size: 2048M
+          emulator-boot-timeout: 300
+          emulator-options: -no-window -no-audio -no-boot-anim -no-snapshot -gpu swiftshader_indirect -feature -SystemAsRoot -ramdisk ${{ github.workspace }}/validation/build/root/ramdisk.img
+          script: python3 validation/scripts/ci-root-test.py
+      - name: Keep evidence only, no framework APKs or disk images
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: root-validation-${{ github.sha }}
+          retention-days: 7
+          path: validation/build/root-evidence/*
