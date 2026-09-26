@@ -8,4 +8,6 @@
 
 许可证声明不是产品合法性审查，也不保证修改其他软件行为的合法性。
 
+第三阶段独立测试使用官方 Magisk v30.7 与 Vector v2.2 工具，固定下载哈希；来源及各自 GPL 许可链接见 [Root 测试方案](docs/root-testing.md)。其源码、框架二进制和修补镜像不纳入本仓库或交付产物，未重新标记为 MIT。
+
 第二阶段测试以固定版本 [JingMatrix/LSPatch v1.2](https://github.com/JingMatrix/LSPatch/tree/0dc50f42503711b14f5e2bb217c2bdd6321ce5be) 作为外部 GPLv3 测试工具。框架 JAR 和嵌入框架后的自建靶场 APK 仅存于临时构建目录，不纳入本仓库、交付包或 Actions 产物；没有将其源码重新标记为 MIT。工具来源、哈希和使用范围见 [测试方案](docs/embedded-hook-testing.md)。其他同类项目只做源码与许可证研究，未合并其实现。

@@ -26,6 +26,8 @@ jobs:
         run: |
           sdkmanager 'platforms;android-35' 'build-tools;34.0.0'
           ./gradlew --no-daemon :guard:assembleDebug :fixture:assembleDebug
+      - name: Check timeout evidence preservation
+        run: python3 validation/scripts/test_root_evidence.py
       - name: Allow isolated runner KVM
         run: sudo chmod a+rw /dev/kvm
       - name: Prepare patched ramdisk using official Magisk tooling

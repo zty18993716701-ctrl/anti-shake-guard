@@ -5,6 +5,7 @@ import os
 from pathlib import Path
 import subprocess
 import time
+from root_evidence import capture
 
 os.chdir(Path(__file__).resolve().parent.parent)
 SERIAL = "emulator-5554"
@@ -76,9 +77,8 @@ def configuration(label, scoped, enabled):
 
 
 def smoke(label, mode):
-    result = subprocess.run(["python3", "scripts/emulator-smoke.py", "--serial", SERIAL, "--mode", mode],
-                            text=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, timeout=180)
-    (EVIDENCE / (label + ".jsonl")).write_text(result.stdout)
+    result = capture(["python3", "scripts/emulator-smoke.py", "--serial", SERIAL, "--mode", mode],
+                     EVIDENCE / (label + ".jsonl"), 180)
     print(result.stdout, flush=True)
     assert result.returncode == 0, f"{label} failed: {result.returncode}"
     summaries = [json.loads(line) for line in result.stdout.splitlines() if line.startswith('{"mode":')]
@@ -122,6 +122,5 @@ try:
     configuration("disabled", True, False)
     smoke("root-disabled", "baseline")
 finally:
-    logs = subprocess.run(["adb", "-s", SERIAL, "logcat", "-d", "-s", "Vector:I", "LSPosed-Bridge:I", "AndroidRuntime:E"],
-                          text=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, timeout=30)
-    (EVIDENCE / "framework-logcat.txt").write_text(logs.stdout)
+    capture(["adb", "-s", SERIAL, "logcat", "-d", "-s", "Vector:I", "LSPosed-Bridge:I", "AndroidRuntime:E"],
+            EVIDENCE / "framework-logcat.txt", 30, best_effort=True)

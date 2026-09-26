@@ -8,6 +8,8 @@
 
 2026-09-26：复用 LSPatch v1.2 的真实 Xposed 引擎，自建靶场三轮保护测试及移除后的恢复基线全部通过。仅此固定组合，不代表 Root 管理器或商业 App 兼容性。[第二阶段结果](docs/embedded-hook-results.md) · [开源项目复用取舍](docs/reuse-research.md)
 
+第三阶段：复用 Magisk v30.7 官方模拟器工具与 Vector v2.2 官方 CLI，原始 APK 在 Root 模拟器上六阶段共 48 次断言通过，包含真正重启、移除作用域和停用恢复。[结果及边界](docs/root-results.md)。
+
 ## 当前能做什么
 
 - 模块首页提供安装检查、保护组/对照组探针入口、测试广告入口和停用说明。未安装、停用或版本不匹配时禁用测试入口；不会把“已安装”显示成“保护已生效”。
@@ -17,7 +19,7 @@
 
 ## 最短验证路径
 
-1. 在专用 Android 测试环境准备兼容 legacy Xposed API 82 的框架。这里不提供一键 Root，也尚无经本项目实测的框架版本可声明兼容。
+1. 在专用 Android 测试环境准备兼容 legacy Xposed API 82 的框架。固定 API 35 x86_64 模拟器已验证 Magisk v30.7 + Vector v2.2；不提供一键 Root，不据此承诺真机兼容。
 2. 安装同一次构建生成的模块、保护组、对照组三个 APK。
 3. 打开模块首页，按清单设置作用域：仅勾选 `dev.antishake.fixture.protectedapp`，不要勾选对照组或其他 App。
 4. 强制停止两个靶场后重开。先验证对照组会因运动跳转，再验证保护组；严格结果以黑盒测试脚本为准。
@@ -47,6 +49,6 @@ CI 生成的调试 APK 签名可能随全新 runner 改变，不能承诺跨构�
 - [安全与发布边界](SECURITY.md)
 - [上游来源与许可证](NOTICE.md)
 
-GitHub Actions 检查 JVM/Robolectric、Lint、APK 构建、无 Hook 基线、LSPatch 嵌入式真实 Hook 三轮测试及恢复基线。CI 全绿只证明固定框架和靶场组合；Root 管理器作用域和真机仍必须另行验收。框架工具及打补丁后的 APK 不进入交付产物。
+GitHub Actions 常规检查 JVM/Robolectric、Lint、APK 构建、无 Hook 基线、LSPatch 嵌入式真实 Hook 三轮测试及恢复基线。独立手动 Root 工作流验证 Vector CLI 作用域与重启恢复。CI 全绿只证明固定框架和靶场组合；管理器图形界面和真机仍须另行验收。框架工具及打补丁后的 APK 不进入交付产物。
 
 “更容易启用、更少误伤、更稳定”是待证明的目标，不是已经胜过其他工具的宣传结论。当前不公开发布、不提供商业 App 兼容承诺，不替换广告、不重定向流量、不伪造广告展示/点击事件。

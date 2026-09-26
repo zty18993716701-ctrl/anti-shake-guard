@@ -1,6 +1,6 @@
 # 验证状态
 
-2026-09-25，0.2 私有验证版；2026-09-26 增补第二阶段嵌入式 Hook 结果。
+2026-09-25，0.2 私有验证版；2026-09-26 增补嵌入式 Hook 与 Root / Vector 结果。
 
 本地 JVM / Robolectric：41 项测试通过，包括 8 项纯策略、6 项模块启用引导、3 项 Hook 回滚、24 项靶场测试。
 Android 框架模拟分别使用 API 28 和 35，不执行 Xposed 注入。
@@ -17,7 +17,8 @@ Android 框架模拟分别使用 API 28 和 35，不执行 Xposed 注入。
 | GitHub Linux / API 35 x86_64 基线 | PASS，8 项；未启用 Hook |
 | 未加载模块时不得通过 hooked 验证 | PASS，按精确失败原因检查，不接受任意报错 |
 | LSPatch v1.2 真实嵌入式 Hook | PASS，3 轮 × 8 项，随后恢复原始 APK 的 8 项基线通过；[证据](embedded-hook-results.md) |
-| 真实 Root / Xposed 拦截及自动关闭 | NOT RUN |
+| Root 模拟器 / Vector 拦截及自动关闭 | PASS，6 阶段 × 8 项；含内核重启、移除作用域、重新启用、停用恢复；[证据](root-results.md) |
+| ARM 真机 / 厂商系统兼容性 | NOT RUN |
 | 竞品对照与用户体验 | NOT MEASURED |
 | 法律审查 | NOT DONE |
 
@@ -29,7 +30,7 @@ Android 框架模拟分别使用 API 28 和 35，不执行 Xposed 注入。
 - [完整成功运行 #3](https://github.com/zty18993716701-ctrl/anti-shake-guard/actions/runs/36128471909)，2026-09-25；构建、测试、Lint、设备基线及负例检查全部成功。
 - [精简原始基线 JSONL](evidence/baseline-13e7690.jsonl)：从该运行日志逐行提取，保留 8 个断言和汇总。两组均收到 123 lux 光线事件，并因真实运动事件跳转；普通/延迟广告可由脚本定位真实按钮点击关闭，缺按钮广告保持不动，正常页面未被操作。
 - `ci-baseline.sh` 在基线后运行 `hooked` 模式，要求它失败，且日志精确包含 `Module not loaded; refusing false positive`；该步骤成功。负例完整日志、设备指纹、传感器列表、JUnit、Lint 与 APK 在 [Actions 产物](https://github.com/zty18993716701-ctrl/anti-shake-guard/actions/runs/36128471909/artifacts/10861580083)，保留 7 天。
-- 此后的交付文档提交仅更新说明和证据，不改变已测试的代码、构建或工作流。
+- 上述第一阶段证据对应其固定提交；后续阶段及测试设施变化见各自结果，不将旧运行结果归给新代码。
 
 ## 本轮修复记录
 
