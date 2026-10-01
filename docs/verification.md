@@ -1,6 +1,6 @@
 # 验证状态
 
-2026-09-25，0.2 私有验证版；2026-09-26 增补嵌入式 Hook 与 Root / Vector 结果。
+2026-09-25，0.2 私有验证版；2026-09-26 增补嵌入式 Hook 与 Root / Vector 结果；2026-10-01 完成三独立环境复测。
 
 本地 JVM / Robolectric：41 项测试通过，包括 8 项纯策略、6 项模块启用引导、3 项 Hook 回滚、24 项靶场测试。
 Android 框架模拟分别使用 API 28 和 35，不执行 Xposed 注入。
@@ -19,6 +19,7 @@ Android 框架模拟分别使用 API 28 和 35，不执行 Xposed 注入。
 | LSPatch v1.2 真实嵌入式 Hook | PASS，3 轮 × 8 项，随后恢复原始 APK 的 8 项基线通过；[证据](embedded-hook-results.md) |
 | Root 模拟器 / Vector 拦截及自动关闭 | PASS，6 阶段 × 8 项；含内核重启、移除作用域、重新启用、停用恢复；[证据](root-results.md) |
 | ARM 真机 / 厂商系统兼容性 | NOT RUN |
+| Root 三独立环境重复性 | PASS，3 × 48 次场景断言、3 × 3 次日志回归；首次尝试全通过；[证据](repeatability-testing.md) |
 | 竞品对照与用户体验 | NOT MEASURED |
 | 法律审查 | NOT DONE |
 
