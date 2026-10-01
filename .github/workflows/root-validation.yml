@@ -8,6 +8,11 @@ concurrency:
   cancel-in-progress: false
 jobs:
   root-vector:
+    strategy:
+      fail-fast: false
+      max-parallel: 3
+      matrix:
+        trial: [1, 2, 3]
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -57,6 +62,6 @@ jobs:
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
-          name: root-validation-${{ github.sha }}
+          name: root-validation-${{ github.sha }}-trial-${{ matrix.trial }}
           retention-days: 7
           path: validation/build/root-evidence/*
