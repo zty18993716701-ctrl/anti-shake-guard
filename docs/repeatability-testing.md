@@ -10,7 +10,11 @@
 
 ## 验证记录
 
-待执行。须记录提交、运行链接、三个 job 的结论和各自的 6 条汇总，不从工作流配置推断执行成功。
+待执行。测试配置提交：`977e5995df1e55fe8796dacc6cf0a84d74deff2b`。本地 3 项日志回归通过，工作流结构检查通过（3 个环境、不提前取消、独立产物名）。2026-10-01 启动时浏览器连接连续两次超时；当前 GitHub 连接器未提供 workflow_dispatch 写入接口，本地无 GitHub CLI，未启动本轮云端复测。
+
+手动启动：[Root 工作流](https://github.com/zty18993716701-ctrl/anti-shake-guard/actions/workflows/root-validation.yml) → `Run workflow` → 选择 `main` → `Run workflow`。一次触发包含三个独立任务，无需点击三次。
+
+执行后须记录实际提交、运行链接、三个 job 的结论和各自的 6 条汇总，不从工作流配置推断执行成功。当前 144 次断言为计划数量，不能报告为通过。
 
 ## 真机衔接
 

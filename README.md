@@ -45,6 +45,8 @@ CI 生成的调试 APK 签名可能随全新 runner 改变，不能承诺跨构�
 - [验收标准与对比计划](docs/acceptance.md)
 - [构建与设备黑盒复测](validation/README.md)
 - [验证状态](docs/verification.md)
+- [三环境重复性复测（待启动）](docs/repeatability-testing.md)
+- [专用 Android 真机验收表（未执行）](docs/device-acceptance.md)
 - [双轴代码审查](docs/review.md)
 - [安全与发布边界](SECURITY.md)
 - [上游来源与许可证](NOTICE.md)
