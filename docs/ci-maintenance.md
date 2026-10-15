@@ -13,6 +13,12 @@
 
 ## 本轮验证
 
-待云端执行。常规工作流将验证新版 Action 下的 JVM/Robolectric、Lint、三个 APK 构建及嵌入式 Hook / 恢复；Root 工作流仍保留手动触发，不能将常规通过写为 Root 已复跑。
+首次执行：[38682826433](https://github.com/zty18993716701-ctrl/anti-shake-guard/actions/runs/38682826433)，提交 `4073447128d3d9ae5b93bf745cd1f837416dadc0`。构建、JVM/Robolectric、Lint、新版 Java/SDK 准备及产物上传成功；模拟器启动失败，功能断言未执行，整体 FAIL。两个 Action 弃用警告在该任务日志中未再出现。
+
+直接错误：Emulator 37.2.12 报告创建 userdata 分区需要 7372.80 MB，而 runner 对应位置只有 7253.52 MB；进程已退出，Action 随后等到 300 秒超时。没有证据证明为应用或 Hook 回归。
+
+最小修复：通过已固定版本的官方 [disk-size 输入](https://github.com/ReactiveCircus/android-emulator-runner/blob/a421e43855164a8197daf9d8d40fe71c6996bb0d/action.yml) 将三个模拟器启动位置的数据分区设置为 2048M。官方 [源码](https://github.com/ReactiveCircus/android-emulator-runner/blob/a421e43855164a8197daf9d8d40fe71c6996bb0d/src/emulator-manager.ts) 将它写入 disk.dataPartition.size。假设：指定较小的专用测试分区后，原磁盘容量检查应通过并能完成同一套验收。待新运行核验；没有通过延长超时或跳过功能断言处理。
+
+常规工作流将验证新版 Action 下的 JVM/Robolectric、Lint、三个 APK 构建及嵌入式 Hook / 恢复；Root 工作流仍保留手动触发，不能将常规通过写为 Root 已复跑。
 
 本轮只维护测试工具；2026-10-07 真机测试包及其 APK 哈希保持原样。真机状态继续为 NOT RUN。

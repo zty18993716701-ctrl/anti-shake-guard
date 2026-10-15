@@ -44,6 +44,7 @@ jobs:
           profile: pixel_2
           emulator-port: 5554
           ram-size: 2048M
+          disk-size: 2048M
           emulator-boot-timeout: 300
           script: bash validation/scripts/ci-root-prepare.sh
       - name: Root scope, reboot and disable behavior
@@ -55,6 +56,7 @@ jobs:
           profile: pixel_2
           emulator-port: 5554
           ram-size: 2048M
+          disk-size: 2048M
           emulator-boot-timeout: 300
           emulator-options: -no-window -no-audio -no-boot-anim -no-snapshot -gpu swiftshader_indirect -feature -SystemAsRoot -ramdisk ${{ github.workspace }}/validation/build/root/ramdisk.img
           script: python3 validation/scripts/ci-root-test.py

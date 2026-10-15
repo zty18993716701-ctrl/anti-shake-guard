@@ -52,6 +52,7 @@ jobs:
           profile: pixel_2
           emulator-port: 5554
           ram-size: 2048M
+          disk-size: 2048M
           emulator-boot-timeout: 300
           script: |
             bash validation/scripts/ci-baseline.sh
