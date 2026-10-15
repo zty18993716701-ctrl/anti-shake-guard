@@ -17,7 +17,9 @@
 
 直接错误：Emulator 37.2.12 报告创建 userdata 分区需要 7372.80 MB，而 runner 对应位置只有 7253.52 MB；进程已退出，Action 随后等到 300 秒超时。没有证据证明为应用或 Hook 回归。
 
-最小修复：通过已固定版本的官方 [disk-size 输入](https://github.com/ReactiveCircus/android-emulator-runner/blob/a421e43855164a8197daf9d8d40fe71c6996bb0d/action.yml) 将三个模拟器启动位置的数据分区设置为 2048M。官方 [源码](https://github.com/ReactiveCircus/android-emulator-runner/blob/a421e43855164a8197daf9d8d40fe71c6996bb0d/src/emulator-manager.ts) 将它写入 disk.dataPartition.size。假设：指定较小的专用测试分区后，原磁盘容量检查应通过并能完成同一套验收。待新运行核验；没有通过延长超时或跳过功能断言处理。
+第一次修复假设：通过官方 disk-size 输入设置 2048M，使较小测试分区通过容量检查。[第二轮 38687262227](https://github.com/zty18993716701-ctrl/anti-shake-guard/actions/runs/38687262227)，提交 `4d8ed4c47674a36d924203320c4fac00f164d99e`，配置日志确认已写入，但仍要求 7372.80 MB，可用 7253.42 MB，再次 FAIL。该假设被本轮证据否定，设置已撤回。
+
+后续修复：APK 构建完成后停止 Gradle，记录并删除该一次性 GitHub Linux runner 的 `/home/runner/.gradle/caches`，记录空闲容量，再启动模拟器。该缓存只用于此前构建，后面的脚本不再运行 Gradle；APK、JUnit 和 Lint 产物留在项目 build 目录，不删除。常规和 Root 工作流均采用相同顺序。新假设是释放本任务缓存后可用空间足以覆盖镜像真实需求。保留原启动超时和全部功能断言，待新运行核验。
 
 常规工作流将验证新版 Action 下的 JVM/Robolectric、Lint、三个 APK 构建及嵌入式 Hook / 恢复；Root 工作流仍保留手动触发，不能将常规通过写为 Root 已复跑。
 

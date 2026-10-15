@@ -36,6 +36,13 @@ jobs:
           :fixture:testProtectedAppDebugUnitTest :fixture:testControlDebugUnitTest
           :guard:assembleDebug :fixture:assembleDebug
           :guard:lintDebug :fixture:lintProtectedAppDebug :fixture:lintControlDebug
+      - name: Release disposable build cache before emulator
+        working-directory: validation
+        run: |
+          ./gradlew --stop
+          du -sh /home/runner/.gradle/caches
+          rm -rf -- /home/runner/.gradle/caches
+          df -h .
       - name: Allow runner access to KVM
         run: sudo chmod a+rw /dev/kvm
       - name: Java 21 for pinned LSPatch CLI
@@ -52,7 +59,6 @@ jobs:
           profile: pixel_2
           emulator-port: 5554
           ram-size: 2048M
-          disk-size: 2048M
           emulator-boot-timeout: 300
           script: |
             bash validation/scripts/ci-baseline.sh
