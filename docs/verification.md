@@ -20,6 +20,7 @@ Android 框架模拟分别使用 API 28 和 35，不执行 Xposed 注入。
 | Root 模拟器 / Vector 拦截及自动关闭 | PASS，6 阶段 × 8 项；含内核重启、移除作用域、重新启用、停用恢复；[证据](root-results.md) |
 | ARM 真机 / 厂商系统兼容性 | NOT RUN |
 | Root 三独立环境重复性 | PASS，3 × 48 次场景断言、3 × 3 次日志回归；首次尝试全通过；[证据](repeatability-testing.md) |
+| 2026-10-15 Node 24 构建工具与嵌入式 Hook 复测 | PASS，构建/代码回归及 40 次场景断言；解决临时 runner 磁盘不足；Root 新环境未复跑；[记录](ci-maintenance.md) |
 | 竞品对照与用户体验 | NOT MEASURED |
 | 法律审查 | NOT DONE |
 

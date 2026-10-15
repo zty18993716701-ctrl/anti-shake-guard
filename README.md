@@ -48,6 +48,7 @@ CI 生成的调试 APK 签名可能随全新 runner 改变，不能承诺跨构�
 - [三环境重复性复测（144 次场景断言通过）](docs/repeatability-testing.md)
 - [专用 Android 真机验收表（未执行）](docs/device-acceptance.md)
 - [安卓测试者安装包说明](docs/tester-kit.md)
+- [Node 24 构建工具维护与复测](docs/ci-maintenance.md)
 - [双轴代码审查](docs/review.md)
 - [安全与发布边界](SECURITY.md)
 - [上游来源与许可证](NOTICE.md)

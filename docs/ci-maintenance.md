@@ -19,8 +19,28 @@
 
 第一次修复假设：通过官方 disk-size 输入设置 2048M，使较小测试分区通过容量检查。[第二轮 38687262227](https://github.com/zty18993716701-ctrl/anti-shake-guard/actions/runs/38687262227)，提交 `4d8ed4c47674a36d924203320c4fac00f164d99e`，配置日志确认已写入，但仍要求 7372.80 MB，可用 7253.42 MB，再次 FAIL。该假设被本轮证据否定，设置已撤回。
 
-后续修复：APK 构建完成后停止 Gradle，记录并删除该一次性 GitHub Linux runner 的 `/home/runner/.gradle/caches`，记录空闲容量，再启动模拟器。该缓存只用于此前构建，后面的脚本不再运行 Gradle；APK、JUnit 和 Lint 产物留在项目 build 目录，不删除。常规和 Root 工作流均采用相同顺序。新假设是释放本任务缓存后可用空间足以覆盖镜像真实需求。保留原启动超时和全部功能断言，待新运行核验。
+最终修复：APK 构建完成后停止 Gradle，记录并删除该一次性 GitHub Linux runner 的 `/home/runner/.gradle/caches`，记录空闲容量，再启动模拟器。该缓存只用于此前构建，后面的脚本不再运行 Gradle；APK、JUnit 和 Lint 产物留在项目 build 目录，不删除。常规和 Root 工作流均采用相同顺序。保留原启动超时和全部功能断言。
 
-常规工作流将验证新版 Action 下的 JVM/Robolectric、Lint、三个 APK 构建及嵌入式 Hook / 恢复；Root 工作流仍保留手动触发，不能将常规通过写为 Root 已复跑。
+## 成功复测与证据
+
+第三轮 [38688294231](https://github.com/zty18993716701-ctrl/anti-shake-guard/actions/runs/38688294231)，提交 `82eb0067b2eb14d1b2c086951f8a4f627040317f`，job `116268116583`，整体 PASS。任务记录释放 637M Gradle 缓存，安装模拟器前 df 显示根卷可用约 13G；之后模拟器实际启动成功。前两轮失败保留，不将它们改写为通过。
+
+| 验证项 | 结果 |
+| --- | --- |
+| 新版 checkout、Java 17 / 21、SDK 准备 | PASS |
+| JVM/Robolectric、Lint、三个原始 APK 构建 | PASS |
+| 无 Hook 基线 | 8/8 PASS |
+| 未加载模块必须失败的负例检查 | PASS，脚本要求特定失败原因 |
+| LSPatch 真实 Hook | 三轮各 8/8 PASS |
+| 移除补丁、恢复原始 APK | 基线 8/8 PASS |
+| 新版产物上传及任务收尾 | PASS |
+
+共 40 次黑盒场景断言，复用 8 个场景；不是 40 种测试。保护组运动事件为 0 且不跳转，对照组仍因运动跳转；两组保留 123 lux 光线事件。靶场自动关闭/安全返回与正常页面不误操作通过。基线中广告由脚本手动关闭，不算自动关闭。
+
+- [原始行为 JSONL](evidence/ci-node24-82eb006.jsonl)：从该任务日志提取 40 条断言及 5 条汇总；仅新增按固定脚本顺序标注的 phase 字段。
+- [私有产物](https://github.com/zty18993716701-ctrl/anti-shake-guard/actions/runs/38688294231/artifacts/11952165688)：APK、JUnit、Lint 和设备证据，保留至 2026-10-22；API 报告 ZIP SHA-256 为 `3e4a89c638bb906b6f72069c4c385bf3a7e5c2d335369a9c613eff5555612131`，本轮未下载解压核验该 ZIP。
+- 本轮原有两类 Action 弃用提示不再出现。SDK 命令行工具 22.0 另外输出 sdkmanager 弃用提醒，仍需在后续独立维护中处理；不宣称所有警告归零。既有 Lint 原型提醒也未隐藏。
+
+Root 工作流已同步 Action 和缓存释放配置，仍保留手动触发，本轮未重新运行其 Root 生命周期测试。2026-10-01 的三环境 Root 结果仅对应其原始固定提交，不能移用于新的构建环境。
 
 本轮只维护测试工具；2026-10-07 真机测试包及其 APK 哈希保持原样。真机状态继续为 NOT RUN。
