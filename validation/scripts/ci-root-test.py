@@ -6,6 +6,7 @@ from pathlib import Path
 import subprocess
 import time
 from root_evidence import capture
+from crash_evidence import Evidence
 
 os.chdir(Path(__file__).resolve().parent.parent)
 SERIAL = "emulator-5554"
@@ -48,7 +49,8 @@ def ready():
 
 
 def reboot(label):
-    previous = adb("shell", "cat", "/proc/sys/kernel/random/boot_id")
+    with Evidence(EVIDENCE, label + "-before-reboot", SERIAL):
+        previous = adb("shell", "cat", "/proc/sys/kernel/random/boot_id")
     adb("reboot")
     deadline = time.monotonic() + 180
     while time.monotonic() < deadline:
@@ -56,7 +58,8 @@ def reboot(label):
             current = adb("shell", "cat", "/proc/sys/kernel/random/boot_id", timeout=10)
             if current != previous and adb("shell", "getprop", "sys.boot_completed", timeout=10) == "1":
                 root()
-                save(label + "-reboot.json", {"before": previous, "after": current, "framework": ready()})
+                with Evidence(EVIDENCE, label + "-after-reboot", SERIAL):
+                    save(label + "-reboot.json", {"before": previous, "after": current, "framework": ready()})
                 return
         except (subprocess.CalledProcessError, subprocess.TimeoutExpired):
             pass
@@ -77,12 +80,52 @@ def configuration(label, scoped, enabled):
 
 
 def smoke(label, mode):
-    result = capture(["python3", "scripts/emulator-smoke.py", "--serial", SERIAL, "--mode", mode],
-                     EVIDENCE / (label + ".jsonl"), 180)
-    print(result.stdout, flush=True)
-    assert result.returncode == 0, f"{label} failed: {result.returncode}"
-    summaries = [json.loads(line) for line in result.stdout.splitlines() if line.startswith('{"mode":')]
-    assert summaries == [{"mode": mode, "result": "PASS", "tests": 8}], summaries
+    with Evidence(EVIDENCE, label, SERIAL):
+        result = capture(["python3", "scripts/emulator-smoke.py", "--serial", SERIAL, "--mode", mode],
+                         EVIDENCE / (label + ".jsonl"), 180)
+        print(result.stdout, flush=True)
+        assert result.returncode == 0, f"{label} failed: {result.returncode}"
+        summaries = [json.loads(line) for line in result.stdout.splitlines() if line.startswith('{"mode":')]
+        assert summaries == [{"mode": mode, "result": "PASS", "tests": 8}], summaries
+
+
+def calibrate(kind, package):
+    label = "calibration-" + kind
+    with Evidence(EVIDENCE, label, SERIAL, allow_crash=True):
+        adb("shell", "am", "start", "-W", "-n", package + "/.MainActivity")
+        pid = adb("shell", "pidof", package)
+        if kind == "java":
+            adb("shell", "am", "crash", "--user", "0", package)
+            signal = "shell-induced crash"
+        else:
+            adb("shell", "kill", "-6", pid)
+            signal = "SIGABRT"
+        deadline = time.monotonic() + 30
+        while time.monotonic() < deadline:
+            text = (EVIDENCE / label / "logcat-all.txt").read_text(errors="replace")
+            # The Java crash dialog may keep the crashing binder call alive.
+            # Clear it only after the real exception and framework stack arrived.
+            if kind == "java" and package in text and signal in text and "at android.app." in text:
+                adb("shell", "am", "force-stop", package)
+            alive = subprocess.run(["adb", "-s", SERIAL, "shell", "pidof", package],
+                                   capture_output=True, text=True, timeout=10)
+            if package in text and signal in text and alive.returncode != 0:
+                break
+            time.sleep(0.2)
+        else:
+            raise AssertionError("Controlled " + kind + " crash was not captured")
+    crash = (EVIDENCE / label / "logcat-crash.txt").read_text(errors="replace")
+    assert package in crash and signal in crash, "Crash buffer did not retain calibration"
+    if kind == "java":
+        assert "at android.app." in crash, "Java calibration framework stack missing"
+    else:
+        dumps = [path for path in (EVIDENCE / label / "tombstones").rglob("tombstone_*")
+                 if path.is_file() and path.suffix != ".pb"]
+        assert any(package in path.read_text(errors="replace") and "backtrace:" in path.read_text(errors="replace")
+                   for path in dumps), "Native calibration tombstone/backtrace missing"
+    save(label + ".json", {"package": package, "pid": pid, "signal": signal, "result": "PASS"})
+    print(json.dumps({"calibration": kind, "package": package, "result": "PASS"}), flush=True)
+    adb("shell", "am", "force-stop", package)
 
 
 try:
@@ -102,6 +145,8 @@ try:
                 "fixture/build/outputs/apk/protectedApp/debug/fixture-protectedApp-debug.apk",
                 "fixture/build/outputs/apk/control/debug/fixture-control-debug.apk"]:
         adb("install", "-r", apk)
+    calibrate("java", MODULE)
+    calibrate("native", "dev.antishake.fixture.control")
     smoke("root-unconfigured", "baseline")
     result = cli("modules", "enable", MODULE)
     assert result["Failed"] == [] and MODULE in result["Enabled"], result
@@ -121,6 +166,10 @@ try:
     assert result["Failed"] == [] and MODULE in result["Disabled"], result
     configuration("disabled", True, False)
     smoke("root-disabled", "baseline")
+    reports = [json.loads(path.read_text()) for path in EVIDENCE.glob("*/capture.json")]
+    assert len(reports) == 12 and all(report["complete"] and report["operation_succeeded"] for report in reports), reports
+    save("capture-summary.json", {"result": "PASS", "segments": len(reports), "calibrations": ["java", "native"]})
+    print(json.dumps({"rootEvidence": "PASS", "segments": len(reports)}), flush=True)
 finally:
-    capture(["adb", "-s", SERIAL, "logcat", "-d", "-s", "Vector:I", "LSPosed-Bridge:I", "AndroidRuntime:E"],
+    capture(["adb", "-s", SERIAL, "logcat", "-b", "all", "-d", "-v", "threadtime"],
             EVIDENCE / "framework-logcat.txt", 30, best_effort=True)

@@ -1,6 +1,10 @@
 name: Root Vector validation (disposable emulator only)
 on:
   workflow_dispatch:
+  # One authorized validation run; restored to manual-only after evidence review.
+  push:
+    branches: [main]
+    paths: [validation/scripts/crash_evidence.py]
 permissions:
   contents: read
 concurrency:
@@ -8,13 +12,14 @@ concurrency:
   cancel-in-progress: false
 jobs:
   root-vector:
+    if: github.event_name == 'workflow_dispatch' || github.event.head_commit.message == 'Validate Root crash evidence [root-test]'
     strategy:
       fail-fast: false
       max-parallel: 3
       matrix:
         trial: [1, 2, 3]
-    runs-on: ubuntu-latest
-    timeout-minutes: 30
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -38,8 +43,8 @@ jobs:
           du -sh /home/runner/.gradle/caches
           rm -rf -- /home/runner/.gradle/caches
           df -h .
-      - name: Check timeout evidence preservation
-        run: python3 validation/scripts/test_root_evidence.py
+      - name: Check crash capture and timeout evidence preservation
+        run: python3 -m unittest discover -s validation/scripts -p 'test_*.py'
       - name: Allow isolated runner KVM
         run: sudo chmod a+rw /dev/kvm
       - name: Prepare patched ramdisk using official Magisk tooling
