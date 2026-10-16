@@ -1,0 +1,443 @@
+{
+  "sourceCommit": "7299ce7a1e0a6dc87402b08f877941ae93462695",
+  "runId": 38899488202,
+  "runAttempt": 1,
+  "result": "PASS",
+  "assertions": 144,
+  "calibrations": 6,
+  "captureSegments": 36,
+  "trials": [
+    {
+      "trial": 1,
+      "jobId": 116968645632,
+      "artifactId": 12045812563,
+      "artifactExpiresAt": "2026-10-23T12:27:35Z",
+      "file": "final-trial-1.zip",
+      "sha256": "a8e394335b3777fd24e17afa1d60330f0443e7a5adfcfd59d1c2b829b94aaa1a",
+      "crc": "PASS",
+      "files": 169,
+      "segments": [
+        {
+          "label": "calibration-java",
+          "complete": true,
+          "logBytes": 4176325,
+          "bootId": "0fac3467-f5f2-429d-a9b3-7dd0b0f455fc"
+        },
+        {
+          "label": "calibration-native",
+          "complete": true,
+          "logBytes": 4535537,
+          "bootId": "0fac3467-f5f2-429d-a9b3-7dd0b0f455fc"
+        },
+        {
+          "label": "framework-install-after-reboot",
+          "complete": true,
+          "logBytes": 2667091,
+          "bootId": "0fac3467-f5f2-429d-a9b3-7dd0b0f455fc"
+        },
+        {
+          "label": "framework-install-before-reboot",
+          "complete": true,
+          "logBytes": 3656957,
+          "bootId": "95213869-e2f7-4465-90c7-10736cb2efea"
+        },
+        {
+          "label": "protection-persistence-after-reboot",
+          "complete": true,
+          "logBytes": 2566912,
+          "bootId": "5dffd76c-780a-4187-b5ac-53c29eeb0e6a"
+        },
+        {
+          "label": "protection-persistence-before-reboot",
+          "complete": true,
+          "logBytes": 10069625,
+          "bootId": "0fac3467-f5f2-429d-a9b3-7dd0b0f455fc"
+        },
+        {
+          "label": "root-after-reboot",
+          "complete": true,
+          "logBytes": 5790223,
+          "bootId": "5dffd76c-780a-4187-b5ac-53c29eeb0e6a"
+        },
+        {
+          "label": "root-disabled",
+          "complete": true,
+          "logBytes": 7472800,
+          "bootId": "5dffd76c-780a-4187-b5ac-53c29eeb0e6a"
+        },
+        {
+          "label": "root-enabled",
+          "complete": true,
+          "logBytes": 9982865,
+          "bootId": "0fac3467-f5f2-429d-a9b3-7dd0b0f455fc"
+        },
+        {
+          "label": "root-scope-removed",
+          "complete": true,
+          "logBytes": 6566588,
+          "bootId": "5dffd76c-780a-4187-b5ac-53c29eeb0e6a"
+        },
+        {
+          "label": "root-scope-restored",
+          "complete": true,
+          "logBytes": 7027157,
+          "bootId": "5dffd76c-780a-4187-b5ac-53c29eeb0e6a"
+        },
+        {
+          "label": "root-unconfigured",
+          "complete": true,
+          "logBytes": 8079559,
+          "bootId": "0fac3467-f5f2-429d-a9b3-7dd0b0f455fc"
+        }
+      ],
+      "assertions": 48,
+      "reboots": {
+        "framework-install": {
+          "before": "95213869-e2f7-4465-90c7-10736cb2efea",
+          "after": "0fac3467-f5f2-429d-a9b3-7dd0b0f455fc",
+          "framework": {
+            "Framework Version": "2.2",
+            "Version Code": 3080,
+            "API Version": 102,
+            "Enabled Modules": 0,
+            "Status Notification": true
+          }
+        },
+        "protection-persistence": {
+          "before": "0fac3467-f5f2-429d-a9b3-7dd0b0f455fc",
+          "after": "5dffd76c-780a-4187-b5ac-53c29eeb0e6a",
+          "framework": {
+            "Framework Version": "2.2",
+            "Version Code": 3080,
+            "API Version": 102,
+            "Enabled Modules": 1,
+            "Status Notification": true
+          }
+        }
+      },
+      "calibrations": {
+        "java": {
+          "package": "dev.antishake.guard",
+          "pid": "2410",
+          "signal": "shell-induced crash",
+          "result": "PASS",
+          "exitReasons": [
+            "process=dev.antishake.guard reason=10 (USER REQUESTED) subreason=21 (FORCE STOP) status=0"
+          ],
+          "dropboxHasSignal": true
+        },
+        "native": {
+          "package": "dev.antishake.fixture.control",
+          "pid": "2704",
+          "signal": "SIGABRT",
+          "result": "PASS",
+          "exitReasons": [
+            "process=dev.antishake.fixture.control reason=5 (APP CRASH(NATIVE)) subreason=0 (UNKNOWN) status=6"
+          ],
+          "dropboxHasSignal": true
+        }
+      },
+      "nativeBacktrace": "PASS",
+      "environment": {
+        "fingerprint": "google/sdk_gphone64_x86_64/emu64xa:15/AE3A.240806.043/12960925:userdebug/dev-keys",
+        "magisk": "30.7:MAGISK:R",
+        "selinux": "Enforcing"
+      },
+      "toolSha256": [
+        "e0d32d2123532860f97123d927b1bb86c4e08e6fd8a48bfc6b5bee0afae9ebd5  magisk.apk",
+        "9ee8323575d615f7b3f1076ff60b2a63a49390ef11881b52632311a37f6f79cc  vector.zip",
+        "d509cb1a11e64b7e3e2d01230051bc434cfb1c5d9875a57974233c4853face6e  build.py",
+        "1720669a684f75fe90a7318868dd4528f2e736a5ad5363f92a3c51c848d79703  scripts/host_patch.sh",
+        "68a7c3177e1820d5dac254fb56a396ef2de93efda02003f1ec53a0b7a61fe073  ramdisk.img"
+      ]
+    },
+    {
+      "trial": 2,
+      "jobId": 116968645495,
+      "artifactId": 12045084300,
+      "artifactExpiresAt": "2026-10-23T12:27:54Z",
+      "file": "final-trial-2.zip",
+      "sha256": "94564802e882cb6d24efe1b8c830e80ee7e83810a3800faeb19020ab16e095a6",
+      "crc": "PASS",
+      "files": 169,
+      "segments": [
+        {
+          "label": "calibration-java",
+          "complete": true,
+          "logBytes": 4133820,
+          "bootId": "79c1506e-3d07-4bf2-8210-c01d554615ac"
+        },
+        {
+          "label": "calibration-native",
+          "complete": true,
+          "logBytes": 4535233,
+          "bootId": "79c1506e-3d07-4bf2-8210-c01d554615ac"
+        },
+        {
+          "label": "framework-install-after-reboot",
+          "complete": true,
+          "logBytes": 2619635,
+          "bootId": "79c1506e-3d07-4bf2-8210-c01d554615ac"
+        },
+        {
+          "label": "framework-install-before-reboot",
+          "complete": true,
+          "logBytes": 3679649,
+          "bootId": "28908309-be75-4759-88ed-be7a8d0b5ed8"
+        },
+        {
+          "label": "protection-persistence-after-reboot",
+          "complete": true,
+          "logBytes": 2758222,
+          "bootId": "97cfc805-7c77-4c93-9e98-504adc20e887"
+        },
+        {
+          "label": "protection-persistence-before-reboot",
+          "complete": true,
+          "logBytes": 7575784,
+          "bootId": "79c1506e-3d07-4bf2-8210-c01d554615ac"
+        },
+        {
+          "label": "root-after-reboot",
+          "complete": true,
+          "logBytes": 5031280,
+          "bootId": "97cfc805-7c77-4c93-9e98-504adc20e887"
+        },
+        {
+          "label": "root-disabled",
+          "complete": true,
+          "logBytes": 6348136,
+          "bootId": "97cfc805-7c77-4c93-9e98-504adc20e887"
+        },
+        {
+          "label": "root-enabled",
+          "complete": true,
+          "logBytes": 7575142,
+          "bootId": "79c1506e-3d07-4bf2-8210-c01d554615ac"
+        },
+        {
+          "label": "root-scope-removed",
+          "complete": true,
+          "logBytes": 5526640,
+          "bootId": "97cfc805-7c77-4c93-9e98-504adc20e887"
+        },
+        {
+          "label": "root-scope-restored",
+          "complete": true,
+          "logBytes": 5944973,
+          "bootId": "97cfc805-7c77-4c93-9e98-504adc20e887"
+        },
+        {
+          "label": "root-unconfigured",
+          "complete": true,
+          "logBytes": 7106942,
+          "bootId": "79c1506e-3d07-4bf2-8210-c01d554615ac"
+        }
+      ],
+      "assertions": 48,
+      "reboots": {
+        "framework-install": {
+          "before": "28908309-be75-4759-88ed-be7a8d0b5ed8",
+          "after": "79c1506e-3d07-4bf2-8210-c01d554615ac",
+          "framework": {
+            "Framework Version": "2.2",
+            "Version Code": 3080,
+            "API Version": 102,
+            "Enabled Modules": 0,
+            "Status Notification": true
+          }
+        },
+        "protection-persistence": {
+          "before": "79c1506e-3d07-4bf2-8210-c01d554615ac",
+          "after": "97cfc805-7c77-4c93-9e98-504adc20e887",
+          "framework": {
+            "Framework Version": "2.2",
+            "Version Code": 3080,
+            "API Version": 102,
+            "Enabled Modules": 1,
+            "Status Notification": true
+          }
+        }
+      },
+      "calibrations": {
+        "java": {
+          "package": "dev.antishake.guard",
+          "pid": "2265",
+          "signal": "shell-induced crash",
+          "result": "PASS",
+          "exitReasons": [
+            "process=dev.antishake.guard reason=10 (USER REQUESTED) subreason=21 (FORCE STOP) status=0"
+          ],
+          "dropboxHasSignal": true
+        },
+        "native": {
+          "package": "dev.antishake.fixture.control",
+          "pid": "2452",
+          "signal": "SIGABRT",
+          "result": "PASS",
+          "exitReasons": [
+            "process=dev.antishake.fixture.control reason=5 (APP CRASH(NATIVE)) subreason=0 (UNKNOWN) status=6"
+          ],
+          "dropboxHasSignal": true
+        }
+      },
+      "nativeBacktrace": "PASS",
+      "environment": {
+        "fingerprint": "google/sdk_gphone64_x86_64/emu64xa:15/AE3A.240806.043/12960925:userdebug/dev-keys",
+        "magisk": "30.7:MAGISK:R",
+        "selinux": "Enforcing"
+      },
+      "toolSha256": [
+        "e0d32d2123532860f97123d927b1bb86c4e08e6fd8a48bfc6b5bee0afae9ebd5  magisk.apk",
+        "9ee8323575d615f7b3f1076ff60b2a63a49390ef11881b52632311a37f6f79cc  vector.zip",
+        "d509cb1a11e64b7e3e2d01230051bc434cfb1c5d9875a57974233c4853face6e  build.py",
+        "1720669a684f75fe90a7318868dd4528f2e736a5ad5363f92a3c51c848d79703  scripts/host_patch.sh",
+        "68a7c3177e1820d5dac254fb56a396ef2de93efda02003f1ec53a0b7a61fe073  ramdisk.img"
+      ]
+    },
+    {
+      "trial": 3,
+      "jobId": 116968645199,
+      "artifactId": 12045054850,
+      "artifactExpiresAt": "2026-10-23T12:28:18Z",
+      "file": "final-trial-3.zip",
+      "sha256": "95743f0c73b4dec3dc1a543c2226af31e17d3f31d6e95d94358f6e6fdb0c6744",
+      "crc": "PASS",
+      "files": 169,
+      "segments": [
+        {
+          "label": "calibration-java",
+          "complete": true,
+          "logBytes": 3879231,
+          "bootId": "dd4ea031-7991-47a3-b4a4-256d46138030"
+        },
+        {
+          "label": "calibration-native",
+          "complete": true,
+          "logBytes": 4203311,
+          "bootId": "dd4ea031-7991-47a3-b4a4-256d46138030"
+        },
+        {
+          "label": "framework-install-after-reboot",
+          "complete": true,
+          "logBytes": 2590443,
+          "bootId": "dd4ea031-7991-47a3-b4a4-256d46138030"
+        },
+        {
+          "label": "framework-install-before-reboot",
+          "complete": true,
+          "logBytes": 4809837,
+          "bootId": "1d9019d5-ef5a-4e8a-a902-45e8e377ab26"
+        },
+        {
+          "label": "protection-persistence-after-reboot",
+          "complete": true,
+          "logBytes": 2487170,
+          "bootId": "d2e61361-3321-4621-bf31-7e3e06b4af34"
+        },
+        {
+          "label": "protection-persistence-before-reboot",
+          "complete": true,
+          "logBytes": 9325313,
+          "bootId": "dd4ea031-7991-47a3-b4a4-256d46138030"
+        },
+        {
+          "label": "root-after-reboot",
+          "complete": true,
+          "logBytes": 5384412,
+          "bootId": "d2e61361-3321-4621-bf31-7e3e06b4af34"
+        },
+        {
+          "label": "root-disabled",
+          "complete": true,
+          "logBytes": 7410687,
+          "bootId": "d2e61361-3321-4621-bf31-7e3e06b4af34"
+        },
+        {
+          "label": "root-enabled",
+          "complete": true,
+          "logBytes": 9235715,
+          "bootId": "dd4ea031-7991-47a3-b4a4-256d46138030"
+        },
+        {
+          "label": "root-scope-removed",
+          "complete": true,
+          "logBytes": 6404872,
+          "bootId": "d2e61361-3321-4621-bf31-7e3e06b4af34"
+        },
+        {
+          "label": "root-scope-restored",
+          "complete": true,
+          "logBytes": 6940487,
+          "bootId": "d2e61361-3321-4621-bf31-7e3e06b4af34"
+        },
+        {
+          "label": "root-unconfigured",
+          "complete": true,
+          "logBytes": 7573895,
+          "bootId": "dd4ea031-7991-47a3-b4a4-256d46138030"
+        }
+      ],
+      "assertions": 48,
+      "reboots": {
+        "framework-install": {
+          "before": "1d9019d5-ef5a-4e8a-a902-45e8e377ab26",
+          "after": "dd4ea031-7991-47a3-b4a4-256d46138030",
+          "framework": {
+            "Framework Version": "2.2",
+            "Version Code": 3080,
+            "API Version": 102,
+            "Enabled Modules": 0,
+            "Status Notification": true
+          }
+        },
+        "protection-persistence": {
+          "before": "dd4ea031-7991-47a3-b4a4-256d46138030",
+          "after": "d2e61361-3321-4621-bf31-7e3e06b4af34",
+          "framework": {
+            "Framework Version": "2.2",
+            "Version Code": 3080,
+            "API Version": 102,
+            "Enabled Modules": 1,
+            "Status Notification": true
+          }
+        }
+      },
+      "calibrations": {
+        "java": {
+          "package": "dev.antishake.guard",
+          "pid": "2156",
+          "signal": "shell-induced crash",
+          "result": "PASS",
+          "exitReasons": [
+            "process=dev.antishake.guard reason=10 (USER REQUESTED) subreason=21 (FORCE STOP) status=0"
+          ],
+          "dropboxHasSignal": true
+        },
+        "native": {
+          "package": "dev.antishake.fixture.control",
+          "pid": "2454",
+          "signal": "SIGABRT",
+          "result": "PASS",
+          "exitReasons": [
+            "process=dev.antishake.fixture.control reason=5 (APP CRASH(NATIVE)) subreason=0 (UNKNOWN) status=6"
+          ],
+          "dropboxHasSignal": true
+        }
+      },
+      "nativeBacktrace": "PASS",
+      "environment": {
+        "fingerprint": "google/sdk_gphone64_x86_64/emu64xa:15/AE3A.240806.043/12960925:userdebug/dev-keys",
+        "magisk": "30.7:MAGISK:R",
+        "selinux": "Enforcing"
+      },
+      "toolSha256": [
+        "e0d32d2123532860f97123d927b1bb86c4e08e6fd8a48bfc6b5bee0afae9ebd5  magisk.apk",
+        "9ee8323575d615f7b3f1076ff60b2a63a49390ef11881b52632311a37f6f79cc  vector.zip",
+        "d509cb1a11e64b7e3e2d01230051bc434cfb1c5d9875a57974233c4853face6e  build.py",
+        "1720669a684f75fe90a7318868dd4528f2e736a5ad5363f92a3c51c848d79703  scripts/host_patch.sh",
+        "68a7c3177e1820d5dac254fb56a396ef2de93efda02003f1ec53a0b7a61fe073  ramdisk.img"
+      ]
+    }
+  ]
+}

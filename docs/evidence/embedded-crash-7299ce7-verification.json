@@ -1,0 +1,31 @@
+{
+  "sourceCommit": "7299ce7a1e0a6dc87402b08f877941ae93462695",
+  "runId": 38899488231,
+  "artifactId": 12045877724,
+  "artifactExpiresAt": "2026-10-23T12:34:51Z",
+  "result": "PASS",
+  "scriptRegressions": 19,
+  "file": "embedded-final.zip",
+  "sha256": "1553bdc30604ffef73bc992589403e3d1863faeaa6dc03d0db8a907f69e7f45f",
+  "crc": "PASS",
+  "files": 34,
+  "segments": [
+    {
+      "label": "embedded-suite",
+      "complete": true,
+      "logBytes": 35211787,
+      "bootId": "8aaa4afe-e1d1-4b1a-8c7c-d754a0168382"
+    }
+  ],
+  "cycles": 100,
+  "cycleCounts": {
+    "cold": 20,
+    "warm": 20,
+    "background": 20,
+    "ad": 20,
+    "normal": 20
+  },
+  "smokeAssertions": 40,
+  "javaTests": 45,
+  "missingHookNegatives": "PASS"
+}
