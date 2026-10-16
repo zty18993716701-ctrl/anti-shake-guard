@@ -15,9 +15,7 @@ printf '%s\n' \
  '1720669a684f75fe90a7318868dd4528f2e736a5ad5363f92a3c51c848d79703  scripts/host_patch.sh' \
  | sha256sum --check
 export ANDROID_SERIAL=emulator-5554
-adb -s "$ANDROID_SERIAL" root
-adb -s "$ANDROID_SERIAL" wait-for-device
-test "$(adb -s "$ANDROID_SERIAL" shell id -u | tr -d '\r')" = 0
+python3 ../../scripts/emulator_adb.py --serial "$ANDROID_SERIAL"
 python3 build.py avd_patch "$ANDROID_HOME/system-images/android-35/google_apis/x86_64/ramdisk.img" "$PWD/ramdisk.img" --apk "$PWD/magisk.apk"
 test -s ramdisk.img
 sha256sum magisk.apk vector.zip build.py scripts/host_patch.sh ramdisk.img > ../root-evidence/tool-sha256.txt

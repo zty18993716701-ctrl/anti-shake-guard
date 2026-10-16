@@ -8,7 +8,20 @@ root = Path(__file__).parent
 log = root / "device.log"
 log.touch(exist_ok=True)
 args = sys.argv[3:]
-if args[:2] == ["shell", "log"]:
+if args == ["root"]:
+    count = root / "root-attempts"
+    attempt = int(count.read_text()) + 1 if count.exists() else 1
+    count.write_text(str(attempt))
+    if (root / "deny-root").exists():
+        print("adbd cannot run as root in production builds", file=sys.stderr)
+        sys.exit(1)
+    if (root / "root-closed").exists() and attempt == 1:
+        print("adb: unable to connect for root: closed", file=sys.stderr)
+        sys.exit(1)
+    print("restarting adbd as root")
+elif args == ["shell", "id", "-u"]:
+    print("2000" if (root / "stay-shell").exists() else "0")
+elif args[:2] == ["shell", "log"]:
     if not ((root / "lose-markers").exists()
             or ((root / "lose-end").exists() and args[-1].endswith(":END"))):
         with log.open("a") as output:

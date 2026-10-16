@@ -7,6 +7,7 @@ import subprocess
 import time
 from root_evidence import capture
 from crash_evidence import Evidence
+from emulator_adb import ensure_root
 
 os.chdir(Path(__file__).resolve().parent.parent)
 SERIAL = "emulator-5554"
@@ -26,9 +27,7 @@ def save(name, value):
 
 
 def root():
-    adb("root")
-    adb("wait-for-device")
-    assert adb("shell", "id", "-u") == "0", "Disposable emulator adbd is not root"
+    ensure_root(SERIAL)
     assert "30.7" in adb("shell", "/debug_ramdisk/magisk", "-v")
 
 
