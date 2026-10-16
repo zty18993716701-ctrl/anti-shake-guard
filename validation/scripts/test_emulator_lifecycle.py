@@ -48,6 +48,9 @@ class LifecycleTest(unittest.TestCase):
         lifecycle.check_process("cold", "101", "202")
         with self.assertRaises(AssertionError):
             lifecycle.check_process("cold", "101", "101")
+        for dead in ("", None):
+            with self.subTest(pid=dead), self.assertRaises(AssertionError):
+                lifecycle.check_process("warm", "101", dead)
 
     def test_normal_page_and_completed_ad_are_rechecked_after_settling(self):
         normal = {"hook": "true", "screen": "MAIN", "close": "NONE", "normalClicks": "0", "navigated": "false"}

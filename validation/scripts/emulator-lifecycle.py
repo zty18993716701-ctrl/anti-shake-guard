@@ -119,19 +119,24 @@ def main():
                         wait_for(package, lambda state: state.get("screen") == "TARGET")
                     after = evidence(package)
                     check_motion(before, after, package == PROTECTED, light, resumes)
+                    final_pid = adb("shell", "pidof", package)
+                    check_process("warm", current, final_pid)
                     entry["evidence"][package] = {"beforePid": previous, "afterPid": current,
-                                                  "before": before, "after": after}
+                                                  "finalPid": final_pid, "before": before, "after": after}
             else:
                 scenario = ("ad", "delayed", "missing")[counts[kind] % 3] if kind == "ad" else "normal"
                 launch(PROTECTED, scenario)
+                previous = adb("shell", "pidof", PROTECTED)
                 expected = "RETURNED" if scenario == "missing" else ("NONE" if scenario == "normal" else "CLOSED")
                 wait_for(PROTECTED, lambda state: state.get("screen") == "MAIN" and state.get("close") == expected)
                 # Recheck the final state, not just a transient successful snapshot.
                 time.sleep(3 if scenario == "normal" else 0.5)
                 state = evidence(PROTECTED)
                 check_page(state, scenario)
+                current = adb("shell", "pidof", PROTECTED)
+                check_process("warm", previous, current)
                 entry["scenario"] = scenario
-                entry["evidence"][PROTECTED] = state
+                entry["evidence"][PROTECTED] = {"beforePid": previous, "finalPid": current, "after": state}
             counts[kind] += 1
             print(json.dumps(dict(entry, result="PASS"), ensure_ascii=False), flush=True)
         assert counts == {"cold": 20, "warm": 20, "background": 20, "ad": 20, "normal": 20}, counts

@@ -24,6 +24,8 @@
 
 修复仅将启动参数改为 `-f 0x10008000`（NEW_TASK | CLEAR_TASK），并在任务日志输出新负例的错误。数值来自本地 API 35 的 `android.content.Intent` 常量。复测结果待执行；此处尚未记 PASS。本机 Gradle 因 `java.net.SocketException: Operation not permitted` 未执行，不能替代上述云端结果。
 
+第二轮 [38843792000](https://github.com/zty18993716701-ctrl/anti-shake-guard/actions/runs/38843792000)，提交 `4094d6cd39c24f544df14f8f60992816d908c554`，在继续加固判据后由后继提交替代，不记整轮 PASS。补充运动后及广告/普通页等待后的 PID 存活与一致性检查，避免进程崩溃后仅凭落盘旧状态通过；原有判据均保留。
+
 ## 手动复测
 
 仅在一次性模拟器已安装同轮 APK、保护组加载模块且对照组未加载模块后，从 `validation` 执行：
