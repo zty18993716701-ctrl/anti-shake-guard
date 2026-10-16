@@ -62,9 +62,7 @@ jobs:
           emulator-port: 5554
           ram-size: 2048M
           emulator-boot-timeout: 300
-          script: |
-            bash validation/scripts/ci-baseline.sh
-            bash validation/scripts/ci-lspatch.sh
+          script: python3 validation/scripts/ci-embedded-test.py
       - name: Keep debug APKs and validation evidence
         if: always()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2

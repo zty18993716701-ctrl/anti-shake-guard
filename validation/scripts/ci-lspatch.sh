@@ -4,7 +4,6 @@ set -euo pipefail
 validation_dir="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$validation_dir"
 mkdir -p build/lspatch build/device-evidence
-trap 'adb -s emulator-5554 logcat -d -s LSPosed:I LSPosed-Bridge:I AndroidRuntime:E > build/device-evidence/lspatch-logcat.txt || true' EXIT
 
 curl --fail --location --retry 2 \
   https://github.com/JingMatrix/LSPatch/releases/download/v1.2/lspatch-v1.2-487-release.jar \

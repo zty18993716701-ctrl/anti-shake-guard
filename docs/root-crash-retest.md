@@ -32,7 +32,9 @@
 
 ## 执行记录
 
-待云端运行。此次提交使用限定消息、main 分支和采集器路径的一次性 push 条件触发；完成后恢复原来的 workflow_dispatch 手动入口，不新增周期性任务。
+Root 复测已启动：[38898272619](https://github.com/zty18993716701-ctrl/anti-shake-guard/actions/runs/38898272619)，提交 `51983b7737bad12a9f5ec64c63be994bbbe0c77a`。本次限定消息、main 分支和采集器路径的一次性 push 条件触发；完成后恢复原来的 workflow_dispatch 手动入口，不新增周期性任务。尚未记 PASS。
+
+常规嵌入式路径也接入同一采集器，整体包裹原始基线、LSPatch、100 轮生命周期与卸载恢复；移除原先可能为空的标签过滤收尾日志。它仅为诊断将一次性模拟器的 adbd 切换为调试 root，不安装 Magisk / Vector，也不改变嵌入式验证路径或产品前提。两个路径的运行提交与结果分别记录，不能互相代替。
 
 ## English summary
 
@@ -41,3 +43,5 @@ This run retests the current source and updated CI with pinned Magisk 30.7 / Vec
 Each phase records unfiltered live logcat with confirmed START/END markers, crash/all-buffer snapshots, DropBox, per-package exit history, kernel logs, boot IDs and native tombstones. Missing coverage, required empty output or failed collection commands fail the run without replacing a primary test error. Dedicated Java and SIGABRT calibration crashes must appear in the real crash buffer; the native case also requires a tombstone backtrace. Expected calibration crashes are kept separate from functional failures.
 
 ADB is unavailable during reboot; this is not a claim of gap-free boot capture or universal crash coverage. Local ADB-boundary tests are not Android runtime validation. Cloud results remain pending; this is neither Root stress-test completion nor physical-device/commercial-app verification. The temporary single-run push trigger will be removed after review, preserving manual-only Root execution.
+
+The same collector also wraps the existing embedded baseline/LSPatch/lifecycle/restoration suite, replacing its tag-filtered exit log. Its adbd runs as debug root solely to read diagnostics; no Root/Xposed framework is installed in that embedded path. The two validation paths retain separate run/commit evidence.
