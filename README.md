@@ -53,6 +53,7 @@ An experimental Android project for preventing unwanted motion-triggered navigat
 | 2026-09-26：Root / Vector 生命周期 | 6 阶段 × 8 项断言通过，覆盖启用、真正重启、移除作用域、恢复作用域和停用恢复。 | [Root 结果](docs/root-results.md) |
 | 2026-10-01：三个独立环境 | 3 × 48 次场景断言及 3 × 3 次日志超时回归执行全部通过。 | [重复性复测](docs/repeatability-testing.md) |
 | 2026-10-15：构建工具维护后 | 代码回归、Lint、三个 APK 构建及 40 次黑盒断言通过，解决云端模拟器磁盘不足导致的启动失败。 | [维护与复测](docs/ci-maintenance.md) |
+| 2026-10-16：混合生命周期 | 45 项 JVM/Robolectric、8 项 Python 回归、40 次既有黑盒断言及 100 轮模拟器混合复测通过；冷启动、同进程重开、前后台、靶场广告及普通页面各 20 轮。 | [逐轮证据与修复记录](docs/lifecycle-testing.md) |
 
 这些数字是对应运行的测试或断言执行次数，其中多个阶段复用相同场景，不能相加后宣称有同等数量的独立测试。真实 Hook 的设备证据来自固定 API 35、google_apis、x86_64 云端模拟器组合。
 
@@ -105,7 +106,7 @@ cd anti-shake-guard/validation
 
 ### 7. 自动化、隐私与恢复
 
-- [常规工作流](.github/workflows/validation.yml)：构建、JVM/Robolectric、Lint、无 Hook 基线、未加载模块负例、三轮 LSPatch 真实 Hook 和恢复基线。LSPatch 测试使用 Java 21，只重打包自建靶场。
+- [常规工作流](.github/workflows/validation.yml)：构建、JVM/Robolectric、Python 判据回归、Lint、无 Hook 基线、未加载模块负例、三轮 LSPatch 真实 Hook、100 轮混合生命周期和恢复基线。LSPatch 测试使用 Java 21，只重打包自建靶场。
 - [Root 工作流](.github/workflows/root-validation.yml)：手动触发三个独立云端任务，通过固定 Magisk / Vector 工具验证原始 APK 的作用域、重启保持和停用恢复。
 - Actions 产物保留 7 天，旧下载链接可能过期；仓库中的 JSONL 和结果说明用于持久追溯。第三方框架和修补镜像不进入交付产物。
 
@@ -116,7 +117,7 @@ cd anti-shake-guard/validation
 ### 8. 下一阶段
 
 - 在新构建环境复跑 Root 专项验收，并继续维护 SDK 工具兼容性。
-- 增加固定操作序列的冷/热启动、前后台切换及重启压力测试；至少 100 次混合生命周期操作的目标仍未完成。
+- 将已通过的 100 轮靶场模拟器复测扩展到设备重启、更长时间运行及真实设备场景；完整产品级稳定性验收仍未完成。
 - 在专用 ARM 真机和不同厂商系统上记录兼容性与副作用。
 - 完成同条件竞品对照，以及至少 5 名独立体验者的启用测试。
 - 在正式产品推广前完成针对实际功能和宣传的法律审查。
@@ -182,6 +183,7 @@ Automatic closing uses explicit fixture rules. It does not use general OCR or a 
 | 2026-09-26: Root / Vector lifecycle | 6 stages × 8 assertions passed, covering enablement, an actual reboot, scope removal/restoration, and recovery after disabling. | [Root results](docs/root-results.md) |
 | 2026-10-01: three independent environments | All 3 × 48 scenario assertions and 3 × 3 timeout-evidence regression executions passed. | [Repeatability results](docs/repeatability-testing.md) |
 | 2026-10-15: CI maintenance | Code regressions, Lint, three APK builds, and 40 black-box assertions passed after resolving runner disk exhaustion during emulator startup. | [Maintenance results](docs/ci-maintenance.md) |
+| 2026-10-16: mixed lifecycle | 45 JVM/Robolectric executions, 8 Python checks, 40 existing smoke assertions, and 100 mixed emulator cycles passed: 20 each for cold starts, same-process reopenings, background returns, fixture ads, and ordinary pages. | [Cycle evidence and harness fixes](docs/lifecycle-testing.md) |
 
 Counts refer to test or assertion executions in their respective runs. Stages reuse scenarios; adding these counts does not give a count of distinct tests. Real-hook device evidence comes from fixed API 35, google_apis, x86_64 cloud-emulator combinations.
 
@@ -234,7 +236,7 @@ A successful build verifies compilation, not protection. Robolectric does not ex
 
 ### 7. Automation, privacy, and recovery
 
-- [Regular workflow](.github/workflows/validation.yml): builds, JVM/Robolectric, Lint, an unhooked baseline, a missing-module negative check, three real LSPatch rounds, and restoration. The LSPatch step uses Java 21 and repackages only this project's fixture.
+- [Regular workflow](.github/workflows/validation.yml): builds, JVM/Robolectric, Python evidence-check regressions, Lint, an unhooked baseline, missing-module negative checks, three real LSPatch rounds, 100 mixed lifecycle cycles, and restoration. The LSPatch step uses Java 21 and repackages only this project's fixture.
 - [Root workflow](.github/workflows/root-validation.yml): manually launches three independent cloud jobs, using pinned Magisk/Vector tools to check scope, reboot persistence, and disable/recovery with original APKs.
 - Actions artifacts are retained for 7 days, so older downloads may expire. Repository JSONL files and reports preserve the recorded evidence. Third-party frameworks and patched images are excluded from deliverables.
 
@@ -245,7 +247,7 @@ To recover, disable the module or remove scope in the manager, then force-stop a
 ### 8. Next development stages
 
 - Rerun Root-specific validation in the updated CI environment and continue SDK-tool compatibility maintenance.
-- Add a fixed sequence of cold/warm launches, background/foreground transitions, and reboots. The goal of at least 100 mixed lifecycle operations remains incomplete.
+- Extend the passing 100-cycle fixture-emulator suite to device reboots, longer runs, and physical devices. Full product-level stability acceptance remains incomplete.
 - Record compatibility and unintended effects on dedicated ARM devices and vendor ROMs.
 - Perform controlled comparisons and activation studies with at least 5 independent participants.
 - Complete legal review of the actual functionality and claims before formal product promotion.
