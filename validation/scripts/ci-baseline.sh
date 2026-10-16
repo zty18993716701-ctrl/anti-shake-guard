@@ -20,4 +20,5 @@ if python3 scripts/emulator-lifecycle.py --serial emulator-5554 > build/device-e
   echo 'ERROR: unhooked emulator falsely passed lifecycle verification' >&2
   exit 1
 fi
+cat build/device-evidence/lifecycle-no-hook-negative.txt
 grep -q 'Module not loaded' build/device-evidence/lifecycle-no-hook-negative.txt

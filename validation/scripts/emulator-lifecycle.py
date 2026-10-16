@@ -73,7 +73,8 @@ def main():
         adb("shell", "run-as", package, "rm", "-f", "files/probe.properties")
         sensor("acceleration", "0:0:9.81")
         sensor("gyroscope", "0:0:0")
-        adb("shell", "am", "start", "-W", "--activity-new-task", "--activity-clear-task",
+        # FLAG_ACTIVITY_NEW_TASK | FLAG_ACTIVITY_CLEAR_TASK, supported by am's -f.
+        adb("shell", "am", "start", "-W", "-f", "0x10008000",
             "-n", package + "/dev.antishake.fixture.MainActivity", "--es", "case", scenario)
         return wait_for(package, lambda state: "screen" in state)
 

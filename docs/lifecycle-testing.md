@@ -20,7 +20,9 @@
 
 ## 本轮执行
 
-2026-10-16：脚本回归通过；本机 Gradle 因 `java.net.SocketException: Operation not permitted` 未执行，Java / Robolectric 与模拟器结果待云端运行。此处尚未记 PASS。
+2026-10-16：首轮 [38843150188](https://github.com/zty18993716701-ctrl/anti-shake-guard/actions/runs/38843150188)，提交 `fcef681706ce8a4e57c78a3aba9b44f5927f122f`，整体 FAIL。8 项 Python 回归、Java / Robolectric、构建、Lint、8 项未启用基线与原缺模块负例通过；新的生命周期负例在启动阶段因 `Unknown option: --activity-new-task` 失败，未进入 Hook / 100 轮阶段。产物 ZIP 已下载并核对 SHA-256 `4990df59a240e53489ad9f96faf6519cacfe1a30ac1df13c4606bb7b4e78f13c`。原因由该 ZIP 中 `lifecycle-no-hook-negative.txt` 的原始堆栈确认；不是保护断言失败。
+
+修复仅将启动参数改为 `-f 0x10008000`（NEW_TASK | CLEAR_TASK），并在任务日志输出新负例的错误。数值来自本地 API 35 的 `android.content.Intent` 常量。复测结果待执行；此处尚未记 PASS。本机 Gradle 因 `java.net.SocketException: Operation not permitted` 未执行，不能替代上述云端结果。
 
 ## 手动复测
 
