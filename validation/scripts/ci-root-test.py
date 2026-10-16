@@ -92,7 +92,8 @@ def smoke(label, mode):
 def calibrate(kind, package):
     label = "calibration-" + kind
     with Evidence(EVIDENCE, label, SERIAL, allow_crash=True):
-        adb("shell", "am", "start", "-W", "-n", package + "/.MainActivity")
+        activity = "dev.antishake.guard.MainActivity" if kind == "java" else "dev.antishake.fixture.MainActivity"
+        adb("shell", "am", "start", "-W", "-n", package + "/" + activity)
         pid = adb("shell", "pidof", package)
         if kind == "java":
             adb("shell", "am", "crash", "--user", "0", package)

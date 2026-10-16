@@ -4,7 +4,7 @@ on:
   # One authorized validation run; restored to manual-only after evidence review.
   push:
     branches: [main]
-    paths: [validation/scripts/crash_evidence.py]
+    paths: [validation/scripts/crash_evidence.py, validation/scripts/ci-root-test.py]
 permissions:
   contents: read
 concurrency:
