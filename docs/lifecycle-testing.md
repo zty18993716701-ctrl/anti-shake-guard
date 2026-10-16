@@ -26,6 +26,8 @@
 
 第二轮 [38843792000](https://github.com/zty18993716701-ctrl/anti-shake-guard/actions/runs/38843792000)，提交 `4094d6cd39c24f544df14f8f60992816d908c554`，在继续加固判据后由后继提交替代，不记整轮 PASS。补充运动后及广告/普通页等待后的 PID 存活与一致性检查，避免进程崩溃后仅凭落盘旧状态通过；原有判据均保留。
 
+取消前的第二轮日志实际已记录三轮 Hook 冒烟通过、生命周期前两轮通过；第三轮后台恢复停在 `MAIN / resumes=0` 并超时。新启动参数被接受，但 Launcher 返回创建了首页，没有恢复探针，不算模块拦截失败。下一修复假设为：首次启动也显式指定 ACTION_MAIN / CATEGORY_LAUNCHER，使任务与随后 Launcher 返回的 Intent 匹配。通过条件仍须恢复到 PROBE、同一 PID、resumes=2，没有将后台恢复改成重开页面。加入存活检查的过渡运行 [38844253287](https://github.com/zty18993716701-ctrl/anti-shake-guard/actions/runs/38844253287) 也由此修复替代，不记整轮 PASS。
+
 ## 手动复测
 
 仅在一次性模拟器已安装同轮 APK、保护组加载模块且对照组未加载模块后，从 `validation` 执行：

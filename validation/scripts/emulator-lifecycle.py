@@ -75,6 +75,7 @@ def main():
         sensor("gyroscope", "0:0:0")
         # FLAG_ACTIVITY_NEW_TASK | FLAG_ACTIVITY_CLEAR_TASK, supported by am's -f.
         adb("shell", "am", "start", "-W", "-f", "0x10008000",
+            "-a", "android.intent.action.MAIN", "-c", "android.intent.category.LAUNCHER",
             "-n", package + "/dev.antishake.fixture.MainActivity", "--es", "case", scenario)
         return wait_for(package, lambda state: "screen" in state)
 
