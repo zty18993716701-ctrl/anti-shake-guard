@@ -15,3 +15,9 @@ if python3 scripts/emulator-smoke.py --serial emulator-5554 --mode hooked > buil
   exit 1
 fi
 grep -q 'Module not loaded; refusing false positive' build/device-evidence/no-hook-negative.txt
+# The mixed lifecycle suite must independently reject an unhooked protected fixture.
+if python3 scripts/emulator-lifecycle.py --serial emulator-5554 > build/device-evidence/lifecycle-no-hook-negative.txt 2>&1; then
+  echo 'ERROR: unhooked emulator falsely passed lifecycle verification' >&2
+  exit 1
+fi
+grep -q 'Module not loaded' build/device-evidence/lifecycle-no-hook-negative.txt

@@ -17,6 +17,7 @@ public final class Probe {
     state.clear();
     state.setProperty("hook", Boolean.toString(hookActive()));
     state.setProperty("events", "0");
+    state.setProperty("resumes", "0");
     state.setProperty("navigated", "false");
     state.setProperty("normalClicks", "0");
     state.setProperty("close", "NONE");

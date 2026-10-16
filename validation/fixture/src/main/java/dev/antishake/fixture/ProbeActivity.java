@@ -40,6 +40,7 @@ public class ProbeActivity extends Activity implements SensorEventListener {
 
   @Override protected void onResume() {
     super.onResume();
+    Probe.increment(this, "resumes");
     int available = 0;
     for (int type : new int[] {Sensor.TYPE_ACCELEROMETER, Sensor.TYPE_GYROSCOPE}) {
       Sensor sensor = sensors.getDefaultSensor(type);

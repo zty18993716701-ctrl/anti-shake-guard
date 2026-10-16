@@ -28,6 +28,24 @@ import java.time.Duration;
 @Config(sdk = {28, 35})
 @LooperMode(LooperMode.Mode.PAUSED)
 public class FixtureTest {
+  @Test public void returningFromBackgroundReRegistersSensorsAndPublishesResumeCount() {
+    Probe.reset(RuntimeEnvironment.getApplication());
+    SensorManager manager = (SensorManager) RuntimeEnvironment.getApplication().getSystemService(Context.SENSOR_SERVICE);
+    ShadowSensorManager virtual = Shadows.shadowOf(manager);
+    Sensor light = ShadowSensor.newInstance(Sensor.TYPE_LIGHT);
+    virtual.addSensor(light);
+    try (ActivityController<ProbeActivity> controller = Robolectric.buildActivity(ProbeActivity.class).setup()) {
+      assertEquals("1", Probe.state.getProperty("resumes"));
+      for (int i = 0; i < 100; i++) {
+        controller.pause().stop();
+        assertFalse(virtual.hasListener(controller.get()));
+        controller.restart().start().resume();
+        assertTrue(virtual.hasListener(controller.get(), light));
+        assertEquals(Integer.toString(i + 2), Probe.state.getProperty("resumes"));
+      }
+    }
+  }
+
   @Test public void liveEvidenceDoesNotContinuouslyRewriteTheAccessibilityTree() {
     Probe.reset(RuntimeEnvironment.getApplication());
     SensorManager manager = (SensorManager) RuntimeEnvironment.getApplication().getSystemService(Context.SENSOR_SERVICE);
