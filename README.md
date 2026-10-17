@@ -1,4 +1,4 @@
-# 屏蔽摇一摇跳转插件 · Anti-Shake Guard
+# 防止摇一摇跳转插件-防抖卫士
 
 [中文介绍](#chinese) · [English introduction](#english)
 
