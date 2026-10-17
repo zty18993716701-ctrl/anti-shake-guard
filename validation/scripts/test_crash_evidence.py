@@ -73,6 +73,23 @@ class CrashEvidenceTest(unittest.TestCase):
                     log.write("Process: dev.antishake.guard, PID: 10\n")
             self.assertIn("Process: dev.antishake.guard", (root / "evidence" / "calibration" / "logcat-all.txt").read_text())
 
+    def test_preinitialized_native_process_is_identified_by_system_crash_event(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder)
+            with self.assertRaisesRegex(AssertionError, "Unexpected fixture crash"):
+                with Evidence(root / "evidence", "phase", "emulator-5554", adb=self.fake_adb(root)):
+                    with (root / "device.log").open("a") as log:
+                        log.write("F DEBUG : pid: 7020, tid: 7024 >>> <pre-initialized> <<<\n"
+                                  "I am_crash: [590,0,dev.antishake.fixture.protectedapp,547896902,Native crash,Segmentation fault,unknown,0,0]\n")
+
+    def test_old_or_other_package_system_crash_is_not_assigned_to_this_segment(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder)
+            (root / "device.log").write_text("I am_crash: [590,0,dev.antishake.fixture.protectedapp,1,Native crash]\n")
+            with Evidence(root / "evidence", "phase", "emulator-5554", adb=self.fake_adb(root)):
+                with (root / "device.log").open("a") as log:
+                    log.write("I am_crash: [590,0,dev.antishake.fixture.protectedapp.other,1,Native crash]\n")
+
     def test_physical_device_is_rejected_before_any_adb_operation(self):
         with tempfile.TemporaryDirectory() as folder, self.assertRaises(ValueError):
             Evidence(folder, "phase", "physical-phone")

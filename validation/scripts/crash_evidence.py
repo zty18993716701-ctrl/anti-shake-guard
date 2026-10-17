@@ -93,7 +93,8 @@ class Evidence:
             self.report["errors"].append("Log coverage markers missing or out of order")
         elif not self.allow_crash:
             targets = "(?:" + "|".join(re.escape(package) for package in PACKAGES) + ")"
-            crash = re.search(r"(?:Process: |>>> |ANR in )" + targets + r"(?=[:, <\r\n]|$)", text[start:end])
+            crash = re.search(r"(?:Process: |>>> |ANR in |am_(?:crash|anr)\s*:\s*\[\d+,\d+,)"
+                              + targets + r"(?=[:, <\r\n]|$)", text[start:end])
             if crash:
                 self.report["errors"].append("Unexpected fixture crash/ANR: " + crash.group())
         self.report["complete"] = not self.report["errors"]
