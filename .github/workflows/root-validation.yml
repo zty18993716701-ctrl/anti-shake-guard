@@ -1,6 +1,9 @@
 name: Root Vector validation (disposable emulator only)
 on:
   workflow_dispatch:
+  push:
+    branches: [main]
+    paths: [validation/scripts/ci-root-test.py]
 permissions:
   contents: read
 concurrency:
@@ -8,13 +11,14 @@ concurrency:
   cancel-in-progress: false
 jobs:
   root-vector:
+    if: github.event_name == 'workflow_dispatch' || github.event.head_commit.message == 'Validate Root 100-cycle stress [root-test]'
     strategy:
       fail-fast: false
       max-parallel: 3
       matrix:
         trial: [1, 2, 3]
     runs-on: ubuntu-24.04
-    timeout-minutes: 35
+    timeout-minutes: 60
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -53,7 +57,7 @@ jobs:
           ram-size: 2048M
           emulator-boot-timeout: 300
           script: bash validation/scripts/ci-root-prepare.sh
-      - name: Root scope, reboot and disable behavior
+      - name: Root 100-cycle lifecycle stress, scope switches, reboots and crash evidence
         uses: ReactiveCircus/android-emulator-runner@a421e43855164a8197daf9d8d40fe71c6996bb0d
         with:
           api-level: 35

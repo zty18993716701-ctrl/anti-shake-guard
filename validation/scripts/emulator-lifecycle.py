@@ -10,6 +10,19 @@ PROTECTED = "dev.antishake.fixture.protectedapp"
 CONTROL = "dev.antishake.fixture.control"
 
 
+def cycle_plan(start, count):
+    if start < 1 or count < 1 or start + count > 101:
+        raise ValueError("Cycle range must be within 1..100")
+    plan = []
+    for cycle in range(start, start + count):
+        kind = ("cold", "warm", "background", "ad", "normal")[(cycle - 1) % 5]
+        row = {"cycle": cycle, "kind": kind}
+        if kind in ("ad", "normal"):
+            row["scenario"] = ("ad", "delayed", "missing")[((cycle - 1) // 5) % 3] if kind == "ad" else "normal"
+        plan.append(row)
+    return plan
+
+
 def check_process(kind, previous, current):
     assert previous and current, "Fixture process is missing"
     assert (previous != current) == (kind == "cold"), (kind, previous, current)
@@ -39,9 +52,15 @@ def check_page(state, scenario):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--serial", required=True)
+    parser.add_argument("--start-cycle", type=int, default=1)
+    parser.add_argument("--cycles", type=int, default=100)
     args = parser.parse_args()
     if not args.serial.startswith("emulator-"):
         parser.error("Only an explicitly selected disposable emulator is supported")
+    try:
+        plan = cycle_plan(args.start_cycle, args.cycles)
+    except ValueError as error:
+        parser.error(str(error))
 
     def adb(*command):
         return subprocess.check_output(["adb", "-s", args.serial, *command], text=True, timeout=25).strip()
@@ -81,9 +100,9 @@ def main():
 
     counts = dict.fromkeys(("cold", "warm", "background", "ad", "normal"), 0)
     try:
-        for cycle in range(1, 101):
-            kind = list(counts)[(cycle - 1) % 5]
-            entry = {"cycle": cycle, "kind": kind, "evidence": {}}
+        for planned in plan:
+            cycle, kind = planned["cycle"], planned["kind"]
+            entry = dict(planned, evidence={})
             if kind in ("cold", "warm", "background"):
                 # Control first: each motion input must still provoke real navigation.
                 for package in (CONTROL, PROTECTED):
@@ -125,7 +144,7 @@ def main():
                     entry["evidence"][package] = {"beforePid": previous, "afterPid": current,
                                                   "finalPid": final_pid, "before": before, "after": after}
             else:
-                scenario = ("ad", "delayed", "missing")[counts[kind] % 3] if kind == "ad" else "normal"
+                scenario = planned["scenario"]
                 launch(PROTECTED, scenario)
                 previous = adb("shell", "pidof", PROTECTED)
                 expected = "RETURNED" if scenario == "missing" else ("NONE" if scenario == "normal" else "CLOSED")
@@ -140,8 +159,9 @@ def main():
                 entry["evidence"][PROTECTED] = {"beforePid": previous, "finalPid": current, "after": state}
             counts[kind] += 1
             print(json.dumps(dict(entry, result="PASS"), ensure_ascii=False), flush=True)
-        assert counts == {"cold": 20, "warm": 20, "background": 20, "ad": 20, "normal": 20}, counts
-        print(json.dumps({"suite": "lifecycle", "result": "PASS", "cycles": 100, "counts": counts}), flush=True)
+        assert counts == {kind: sum(row["kind"] == kind for row in plan) for kind in counts}, counts
+        print(json.dumps({"suite": "lifecycle", "result": "PASS", "cycles": len(plan),
+                          "startCycle": args.start_cycle, "counts": counts}), flush=True)
     finally:
         sensor("acceleration", "0:0:9.81")
         sensor("gyroscope", "0:0:0")

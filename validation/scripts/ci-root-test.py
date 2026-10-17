@@ -8,6 +8,7 @@ import time
 from root_evidence import capture
 from crash_evidence import Evidence
 from emulator_adb import ensure_root
+from root_stress import check_chunk, check_stress
 
 os.chdir(Path(__file__).resolve().parent.parent)
 SERIAL = "emulator-5554"
@@ -128,6 +129,43 @@ def calibrate(kind, package):
     adb("shell", "am", "force-stop", package)
 
 
+def stress():
+    rows = []
+    boundaries = []
+    for start in (1, 21, 41, 61, 81):
+        label = f"stress-{start:03d}-{start + 19:03d}"
+        with Evidence(EVIDENCE, label, SERIAL):
+            result = capture(["python3", "-u", "scripts/emulator-lifecycle.py", "--serial", SERIAL,
+                              "--start-cycle", str(start), "--cycles", "20"],
+                             EVIDENCE / (label + ".jsonl"), 360)
+            print(result.stdout, flush=True)
+            assert result.returncode == 0, f"{label} failed: {result.returncode}"
+            rows.extend(check_chunk([json.loads(line) for line in result.stdout.splitlines()], start))
+        end = start + 19
+        if end in (20, 60):
+            label = f"stress-after-{end}"
+            # Each smoke launch force-stops fixtures, so a cached process cannot mask scope changes.
+            with Evidence(EVIDENCE, label + "-remove-scope", SERIAL):
+                cli("scope", "rm", MODULE, PROTECTED + "/0")
+                configuration(label + "-removed", False, True)
+            smoke(label + "-unscoped", "baseline")
+            with Evidence(EVIDENCE, label + "-restore-scope", SERIAL):
+                cli("scope", "set", MODULE, PROTECTED + "/0")
+                configuration(label + "-restored", True, True)
+            smoke(label + "-rescoped", "hooked")
+            boundaries.append({"afterCycle": end, "action": "scope-remove-restore", "result": "PASS"})
+        elif end in (40, 80):
+            label = f"stress-after-{end}"
+            reboot(label)
+            with Evidence(EVIDENCE, label + "-configuration", SERIAL):
+                configuration(label, True, True)
+            smoke(label + "-recovered", "hooked")
+            boundaries.append({"afterCycle": end, "action": "reboot-recover", "result": "PASS"})
+    counts = check_stress(rows)
+    save("stress-summary.json", {"result": "PASS", "cycles": 100, "counts": counts, "boundaries": boundaries})
+    print(json.dumps({"rootStress": "PASS", "cycles": 100, "counts": counts, "boundaries": boundaries}), flush=True)
+
+
 try:
     root()
     save("environment.json", {"fingerprint": adb("shell", "getprop", "ro.build.fingerprint"),
@@ -162,12 +200,13 @@ try:
     cli("scope", "set", MODULE, PROTECTED + "/0")
     configuration("scope-restored", True, True)
     smoke("root-scope-restored", "hooked")
+    stress()
     result = cli("modules", "disable", MODULE)
     assert result["Failed"] == [] and MODULE in result["Disabled"], result
     configuration("disabled", True, False)
     smoke("root-disabled", "baseline")
     reports = [json.loads(path.read_text()) for path in EVIDENCE.glob("*/capture.json")]
-    assert len(reports) == 12 and all(report["complete"] and report["operation_succeeded"] for report in reports), reports
+    assert len(reports) == 33 and all(report["complete"] and report["operation_succeeded"] for report in reports), reports
     save("capture-summary.json", {"result": "PASS", "segments": len(reports), "calibrations": ["java", "native"]})
     print(json.dumps({"rootEvidence": "PASS", "segments": len(reports)}), flush=True)
 finally:

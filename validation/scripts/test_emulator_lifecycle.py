@@ -9,6 +9,22 @@ spec.loader.exec_module(lifecycle)
 
 
 class LifecycleTest(unittest.TestCase):
+    def test_five_chunks_are_exactly_the_original_100_cycle_plan(self):
+        whole = lifecycle.cycle_plan(1, 100)
+        chunks = [row for start in (1, 21, 41, 61, 81)
+                  for row in lifecycle.cycle_plan(start, 20)]
+        self.assertEqual(chunks, whole)
+        self.assertEqual([row["cycle"] for row in whole], list(range(1, 101)))
+        for kind in ("cold", "warm", "background", "ad", "normal"):
+            self.assertEqual(sum(row["kind"] == kind for row in whole), 20)
+        self.assertEqual([row["scenario"] for row in whole if row["kind"] == "ad"],
+                         ["ad", "delayed", "missing"] * 6 + ["ad", "delayed"])
+
+    def test_invalid_or_out_of_range_chunks_are_rejected(self):
+        for start, count in ((0, 20), (1, 0), (-1, 20), (81, 21), (101, 1)):
+            with self.subTest(start=start, count=count), self.assertRaises(ValueError):
+                lifecycle.cycle_plan(start, count)
+
     def protected(self):
         return {"screen": "PROBE", "navigated": "false", "resumes": "2", "hook": "true",
                 "events": "0", "sensorCount": "0", "lightAvailable": "true",
