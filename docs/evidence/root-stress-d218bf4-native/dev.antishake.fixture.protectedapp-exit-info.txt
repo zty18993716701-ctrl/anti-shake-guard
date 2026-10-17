@@ -1,0 +1,68 @@
+ACTIVITY MANAGER PROCESS EXIT INFO (dumpsys activity exit-info)
+Last Timestamp of Persistence Into Persistent Storage: 1970-01-01 00:00:00.000
+  package: dev.antishake.fixture.protectedapp
+    Historical Process Exit for uid=10211
+        ApplicationExitInfo #0:
+          timestamp=2026-10-17 09:26:45.176 pid=7020 realUid=10211 packageUid=10211 definingUid=10211 user=0
+          process=dev.antishake.fixture.protectedapp reason=5 (APP CRASH(NATIVE)) subreason=0 (UNKNOWN) status=11
+          importance=100 pss=0.00 rss=0.00 description=crash state=empty trace=null
+        ApplicationExitInfo #1:
+          timestamp=2026-10-17 09:26:44.372 pid=6874 realUid=10211 packageUid=10211 definingUid=10211 user=0
+          process=dev.antishake.fixture.protectedapp reason=10 (USER REQUESTED) subreason=21 (FORCE STOP) status=0
+          importance=400 pss=0.00 rss=0.00 description=stop dev.antishake.fixture.protectedapp due to from pid 7009 state=empty trace=null
+        ApplicationExitInfo #2:
+          timestamp=2026-10-17 09:26:38.689 pid=6752 realUid=10211 packageUid=10211 definingUid=10211 user=0
+          process=dev.antishake.fixture.protectedapp reason=10 (USER REQUESTED) subreason=21 (FORCE STOP) status=0
+          importance=400 pss=0.00 rss=0.00 description=stop dev.antishake.fixture.protectedapp due to from pid 6863 state=empty trace=null
+        ApplicationExitInfo #3:
+          timestamp=2026-10-17 09:26:33.706 pid=6708 realUid=10211 packageUid=10211 definingUid=10211 user=0
+          process=dev.antishake.fixture.protectedapp reason=10 (USER REQUESTED) subreason=21 (FORCE STOP) status=0
+          importance=100 pss=0.00 rss=0.00 description=stop dev.antishake.fixture.protectedapp due to from pid 6741 state=empty trace=null
+        ApplicationExitInfo #4:
+          timestamp=2026-10-17 09:26:32.614 pid=6539 realUid=10211 packageUid=10211 definingUid=10211 user=0
+          process=dev.antishake.fixture.protectedapp reason=10 (USER REQUESTED) subreason=21 (FORCE STOP) status=0
+          importance=400 pss=0.00 rss=0.00 description=stop dev.antishake.fixture.protectedapp due to from pid 6698 state=empty trace=null
+        ApplicationExitInfo #5:
+          timestamp=2026-10-17 09:26:26.951 pid=6470 realUid=10211 packageUid=10211 definingUid=10211 user=0
+          process=dev.antishake.fixture.protectedapp reason=10 (USER REQUESTED) subreason=21 (FORCE STOP) status=0
+          importance=100 pss=0.00 rss=0.00 description=stop dev.antishake.fixture.protectedapp due to from pid 6528 state=empty trace=null
+        ApplicationExitInfo #6:
+          timestamp=2026-10-17 09:26:23.324 pid=6422 realUid=10211 packageUid=10211 definingUid=10211 user=0
+          process=dev.antishake.fixture.protectedapp reason=10 (USER REQUESTED) subreason=21 (FORCE STOP) status=0
+          importance=100 pss=0.00 rss=0.00 description=stop dev.antishake.fixture.protectedapp due to from pid 6458 state=empty trace=null
+        ApplicationExitInfo #7:
+          timestamp=2026-10-17 09:26:21.520 pid=6372 realUid=10211 packageUid=10211 definingUid=10211 user=0
+          process=dev.antishake.fixture.protectedapp reason=10 (USER REQUESTED) subreason=21 (FORCE STOP) status=0
+          importance=100 pss=0.00 rss=0.00 description=stop dev.antishake.fixture.protectedapp due to from pid 6411 state=empty trace=null
+        ApplicationExitInfo #8:
+          timestamp=2026-10-17 09:26:19.677 pid=6325 realUid=10211 packageUid=10211 definingUid=10211 user=0
+          process=dev.antishake.fixture.protectedapp reason=10 (USER REQUESTED) subreason=21 (FORCE STOP) status=0
+          importance=100 pss=0.00 rss=0.00 description=stop dev.antishake.fixture.protectedapp due to from pid 6361 state=empty trace=null
+        ApplicationExitInfo #9:
+          timestamp=2026-10-17 09:26:16.239 pid=6124 realUid=10211 packageUid=10211 definingUid=10211 user=0
+          process=dev.antishake.fixture.protectedapp reason=10 (USER REQUESTED) subreason=21 (FORCE STOP) status=0
+          importance=400 pss=0.00 rss=0.00 description=stop dev.antishake.fixture.protectedapp due to from pid 6315 state=empty trace=null
+        ApplicationExitInfo #10:
+          timestamp=2026-10-17 09:26:04.538 pid=6081 realUid=10211 packageUid=10211 definingUid=10211 user=0
+          process=dev.antishake.fixture.protectedapp reason=10 (USER REQUESTED) subreason=21 (FORCE STOP) status=0
+          importance=100 pss=0.00 rss=0.00 description=stop dev.antishake.fixture.protectedapp due to from pid 6112 state=empty trace=null
+        ApplicationExitInfo #11:
+          timestamp=2026-10-17 09:26:00.476 pid=6011 realUid=10211 packageUid=10211 definingUid=10211 user=0
+          process=dev.antishake.fixture.protectedapp reason=10 (USER REQUESTED) subreason=21 (FORCE STOP) status=0
+          importance=100 pss=0.00 rss=0.00 description=stop dev.antishake.fixture.protectedapp due to from pid 6069 state=empty trace=null
+        ApplicationExitInfo #12:
+          timestamp=2026-10-17 09:25:53.821 pid=5936 realUid=10211 packageUid=10211 definingUid=10211 user=0
+          process=dev.antishake.fixture.protectedapp reason=10 (USER REQUESTED) subreason=21 (FORCE STOP) status=0
+          importance=100 pss=0.00 rss=0.00 description=stop dev.antishake.fixture.protectedapp due to from pid 5999 state=empty trace=null
+        ApplicationExitInfo #13:
+          timestamp=2026-10-17 09:25:46.963 pid=5888 realUid=10211 packageUid=10211 definingUid=10211 user=0
+          process=dev.antishake.fixture.protectedapp reason=10 (USER REQUESTED) subreason=21 (FORCE STOP) status=0
+          importance=100 pss=0.00 rss=0.00 description=stop dev.antishake.fixture.protectedapp due to from pid 5925 state=empty trace=null
+        ApplicationExitInfo #14:
+          timestamp=2026-10-17 09:25:43.401 pid=5674 realUid=10211 packageUid=10211 definingUid=10211 user=0
+          process=dev.antishake.fixture.protectedapp reason=10 (USER REQUESTED) subreason=21 (FORCE STOP) status=0
+          importance=400 pss=0.00 rss=0.00 description=stop dev.antishake.fixture.protectedapp due to from pid 5878 state=empty trace=null
+        ApplicationExitInfo #15:
+          timestamp=2026-10-17 09:25:31.404 pid=5595 realUid=10211 packageUid=10211 definingUid=10211 user=0
+          process=dev.antishake.fixture.protectedapp reason=10 (USER REQUESTED) subreason=21 (FORCE STOP) status=0
+          importance=100 pss=0.00 rss=0.00 description=stop dev.antishake.fixture.protectedapp due to from pid 5657 state=empty trace=null

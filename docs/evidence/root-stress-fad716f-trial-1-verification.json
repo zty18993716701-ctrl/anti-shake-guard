@@ -1,0 +1,321 @@
+{
+  "file": "final-trial-1.zip",
+  "sha256": "00465f983088a7c8fd069067c90485917b3ca85ae8650cc26505908ff5e7a51c",
+  "crc": "PASS",
+  "files": 464,
+  "segments": [
+    {
+      "label": "calibration-java",
+      "complete": true,
+      "logBytes": 3599293,
+      "bootId": "1d81377f-7f62-410e-ba8c-e5478597ee87"
+    },
+    {
+      "label": "calibration-native",
+      "complete": true,
+      "logBytes": 4190781,
+      "bootId": "1d81377f-7f62-410e-ba8c-e5478597ee87"
+    },
+    {
+      "label": "framework-install-after-reboot",
+      "complete": true,
+      "logBytes": 2526953,
+      "bootId": "1d81377f-7f62-410e-ba8c-e5478597ee87"
+    },
+    {
+      "label": "framework-install-before-reboot",
+      "complete": true,
+      "logBytes": 4270972,
+      "bootId": "b38f6b1c-85ac-4580-add3-501c162e74d1"
+    },
+    {
+      "label": "protection-persistence-after-reboot",
+      "complete": true,
+      "logBytes": 2716731,
+      "bootId": "f334446c-d09a-41ba-86b9-47ae50767d35"
+    },
+    {
+      "label": "protection-persistence-before-reboot",
+      "complete": true,
+      "logBytes": 7319088,
+      "bootId": "1d81377f-7f62-410e-ba8c-e5478597ee87"
+    },
+    {
+      "label": "root-after-reboot",
+      "complete": true,
+      "logBytes": 4858349,
+      "bootId": "f334446c-d09a-41ba-86b9-47ae50767d35"
+    },
+    {
+      "label": "root-disabled",
+      "complete": true,
+      "logBytes": 8235370,
+      "bootId": "c3885852-7533-4a5f-99ff-0be32499d2ae"
+    },
+    {
+      "label": "root-enabled",
+      "complete": true,
+      "logBytes": 7318512,
+      "bootId": "1d81377f-7f62-410e-ba8c-e5478597ee87"
+    },
+    {
+      "label": "root-scope-removed",
+      "complete": true,
+      "logBytes": 5318781,
+      "bootId": "f334446c-d09a-41ba-86b9-47ae50767d35"
+    },
+    {
+      "label": "root-scope-restored",
+      "complete": true,
+      "logBytes": 5739262,
+      "bootId": "f334446c-d09a-41ba-86b9-47ae50767d35"
+    },
+    {
+      "label": "root-unconfigured",
+      "complete": true,
+      "logBytes": 6814244,
+      "bootId": "1d81377f-7f62-410e-ba8c-e5478597ee87"
+    },
+    {
+      "label": "stress-001-020",
+      "complete": true,
+      "logBytes": 8861304,
+      "bootId": "f334446c-d09a-41ba-86b9-47ae50767d35"
+    },
+    {
+      "label": "stress-021-040",
+      "complete": true,
+      "logBytes": 12796796,
+      "bootId": "f334446c-d09a-41ba-86b9-47ae50767d35"
+    },
+    {
+      "label": "stress-041-060",
+      "complete": true,
+      "logBytes": 8123441,
+      "bootId": "fc6c65e0-ccfb-459b-8fe8-c09da9e4bf03"
+    },
+    {
+      "label": "stress-061-080",
+      "complete": true,
+      "logBytes": 12058649,
+      "bootId": "fc6c65e0-ccfb-459b-8fe8-c09da9e4bf03"
+    },
+    {
+      "label": "stress-081-100",
+      "complete": true,
+      "logBytes": 7807317,
+      "bootId": "c3885852-7533-4a5f-99ff-0be32499d2ae"
+    },
+    {
+      "label": "stress-after-20-remove-scope",
+      "complete": true,
+      "logBytes": 8872820,
+      "bootId": "f334446c-d09a-41ba-86b9-47ae50767d35"
+    },
+    {
+      "label": "stress-after-20-rescoped",
+      "complete": true,
+      "logBytes": 9694017,
+      "bootId": "f334446c-d09a-41ba-86b9-47ae50767d35"
+    },
+    {
+      "label": "stress-after-20-restore-scope",
+      "complete": true,
+      "logBytes": 9305775,
+      "bootId": "f334446c-d09a-41ba-86b9-47ae50767d35"
+    },
+    {
+      "label": "stress-after-20-unscoped",
+      "complete": true,
+      "logBytes": 9295175,
+      "bootId": "f334446c-d09a-41ba-86b9-47ae50767d35"
+    },
+    {
+      "label": "stress-after-40-after-reboot",
+      "complete": true,
+      "logBytes": 2710908,
+      "bootId": "fc6c65e0-ccfb-459b-8fe8-c09da9e4bf03"
+    },
+    {
+      "label": "stress-after-40-before-reboot",
+      "complete": true,
+      "logBytes": 12518256,
+      "bootId": "f334446c-d09a-41ba-86b9-47ae50767d35"
+    },
+    {
+      "label": "stress-after-40-configuration",
+      "complete": true,
+      "logBytes": 3834964,
+      "bootId": "fc6c65e0-ccfb-459b-8fe8-c09da9e4bf03"
+    },
+    {
+      "label": "stress-after-40-recovered",
+      "complete": true,
+      "logBytes": 4945422,
+      "bootId": "fc6c65e0-ccfb-459b-8fe8-c09da9e4bf03"
+    },
+    {
+      "label": "stress-after-60-remove-scope",
+      "complete": true,
+      "logBytes": 8135888,
+      "bootId": "fc6c65e0-ccfb-459b-8fe8-c09da9e4bf03"
+    },
+    {
+      "label": "stress-after-60-rescoped",
+      "complete": true,
+      "logBytes": 8935759,
+      "bootId": "fc6c65e0-ccfb-459b-8fe8-c09da9e4bf03"
+    },
+    {
+      "label": "stress-after-60-restore-scope",
+      "complete": true,
+      "logBytes": 8547953,
+      "bootId": "fc6c65e0-ccfb-459b-8fe8-c09da9e4bf03"
+    },
+    {
+      "label": "stress-after-60-unscoped",
+      "complete": true,
+      "logBytes": 8537309,
+      "bootId": "fc6c65e0-ccfb-459b-8fe8-c09da9e4bf03"
+    },
+    {
+      "label": "stress-after-80-after-reboot",
+      "complete": true,
+      "logBytes": 2502563,
+      "bootId": "c3885852-7533-4a5f-99ff-0be32499d2ae"
+    },
+    {
+      "label": "stress-after-80-before-reboot",
+      "complete": true,
+      "logBytes": 11920266,
+      "bootId": "fc6c65e0-ccfb-459b-8fe8-c09da9e4bf03"
+    },
+    {
+      "label": "stress-after-80-configuration",
+      "complete": true,
+      "logBytes": 3396070,
+      "bootId": "c3885852-7533-4a5f-99ff-0be32499d2ae"
+    },
+    {
+      "label": "stress-after-80-recovered",
+      "complete": true,
+      "logBytes": 4633693,
+      "bootId": "c3885852-7533-4a5f-99ff-0be32499d2ae"
+    }
+  ],
+  "environment": {
+    "fingerprint": "google/sdk_gphone64_x86_64/emu64xa:15/AE3A.240806.043/12960925:userdebug/dev-keys",
+    "magisk": "30.7:MAGISK:R",
+    "selinux": "Enforcing"
+  },
+  "toolSha256": [
+    "e0d32d2123532860f97123d927b1bb86c4e08e6fd8a48bfc6b5bee0afae9ebd5  magisk.apk",
+    "9ee8323575d615f7b3f1076ff60b2a63a49390ef11881b52632311a37f6f79cc  vector.zip",
+    "d509cb1a11e64b7e3e2d01230051bc434cfb1c5d9875a57974233c4853face6e  build.py",
+    "1720669a684f75fe90a7318868dd4528f2e736a5ad5363f92a3c51c848d79703  scripts/host_patch.sh",
+    "68a7c3177e1820d5dac254fb56a396ef2de93efda02003f1ec53a0b7a61fe073  ramdisk.img"
+  ],
+  "assertions": 96,
+  "reboots": {
+    "framework-install": {
+      "before": "b38f6b1c-85ac-4580-add3-501c162e74d1",
+      "after": "1d81377f-7f62-410e-ba8c-e5478597ee87",
+      "framework": {
+        "Framework Version": "2.2",
+        "Version Code": 3080,
+        "API Version": 102,
+        "Enabled Modules": 0,
+        "Status Notification": true
+      }
+    },
+    "protection-persistence": {
+      "before": "1d81377f-7f62-410e-ba8c-e5478597ee87",
+      "after": "f334446c-d09a-41ba-86b9-47ae50767d35",
+      "framework": {
+        "Framework Version": "2.2",
+        "Version Code": 3080,
+        "API Version": 102,
+        "Enabled Modules": 1,
+        "Status Notification": true
+      }
+    },
+    "stress-after-40": {
+      "before": "f334446c-d09a-41ba-86b9-47ae50767d35",
+      "after": "fc6c65e0-ccfb-459b-8fe8-c09da9e4bf03",
+      "framework": {
+        "Framework Version": "2.2",
+        "Version Code": 3080,
+        "API Version": 102,
+        "Enabled Modules": 1,
+        "Status Notification": true
+      }
+    },
+    "stress-after-80": {
+      "before": "fc6c65e0-ccfb-459b-8fe8-c09da9e4bf03",
+      "after": "c3885852-7533-4a5f-99ff-0be32499d2ae",
+      "framework": {
+        "Framework Version": "2.2",
+        "Version Code": 3080,
+        "API Version": 102,
+        "Enabled Modules": 1,
+        "Status Notification": true
+      }
+    }
+  },
+  "calibrations": {
+    "java": {
+      "package": "dev.antishake.guard",
+      "pid": "2012",
+      "signal": "shell-induced crash",
+      "result": "PASS",
+      "exitReasons": [
+        "process=dev.antishake.guard reason=10 (USER REQUESTED) subreason=21 (FORCE STOP) status=0"
+      ],
+      "dropboxHasSignal": true
+    },
+    "native": {
+      "package": "dev.antishake.fixture.control",
+      "pid": "2325",
+      "signal": "SIGABRT",
+      "result": "PASS",
+      "exitReasons": [
+        "process=dev.antishake.fixture.control reason=5 (APP CRASH(NATIVE)) subreason=0 (UNKNOWN) status=6"
+      ],
+      "dropboxHasSignal": true
+    }
+  },
+  "nativeBacktrace": "PASS",
+  "stress": {
+    "result": "PASS",
+    "cycles": 100,
+    "counts": {
+      "cold": 20,
+      "warm": 20,
+      "background": 20,
+      "ad": 20,
+      "normal": 20
+    },
+    "boundaries": [
+      {
+        "afterCycle": 20,
+        "action": "scope-remove-restore",
+        "result": "PASS"
+      },
+      {
+        "afterCycle": 40,
+        "action": "reboot-recover",
+        "result": "PASS"
+      },
+      {
+        "afterCycle": 60,
+        "action": "scope-remove-restore",
+        "result": "PASS"
+      },
+      {
+        "afterCycle": 80,
+        "action": "reboot-recover",
+        "result": "PASS"
+      }
+    ]
+  }
+}

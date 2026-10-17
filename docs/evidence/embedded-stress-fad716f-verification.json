@@ -1,0 +1,20 @@
+{
+  "file": "embedded-failed.zip",
+  "sha256": "175db233569ab48f893fd3c7f03650bfa43a75f823d66a53adf39b96e0294889",
+  "crc": "PASS",
+  "files": 33,
+  "segments": [
+    {
+      "label": "embedded-suite",
+      "complete": true,
+      "logBytes": 15769215,
+      "bootId": "b394792f-a339-40bb-a35d-86ad8b2b181c"
+    }
+  ],
+  "result": "FAIL",
+  "cyclesCompleted": 9,
+  "failure": "Cycle 10 normal-page Hook=false; root cause unconfirmed",
+  "smokeAssertions": 32,
+  "javaTests": 45,
+  "missingHookNegatives": "PASS"
+}

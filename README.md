@@ -55,10 +55,13 @@ An experimental Android project for preventing unwanted motion-triggered navigat
 | 2026-10-15：构建工具维护后 | 代码回归、Lint、三个 APK 构建及 40 次黑盒断言通过，解决云端模拟器磁盘不足导致的启动失败。 | [维护与复测](docs/ci-maintenance.md) |
 | 2026-10-16：混合生命周期 | 45 项 JVM/Robolectric、8 项 Python 回归、40 次既有黑盒断言及 100 轮模拟器混合复测通过；冷启动、同进程重开、前后台、靶场广告及普通页面各 20 轮。 | [逐轮证据与修复记录](docs/lifecycle-testing.md) |
 | 2026-10-16：更新后 Root 与完整诊断 | 三环境 144 次功能断言、6 次受控 Java/原生崩溃、36 个 Root 采集段通过；嵌入式 100 轮带完整日志再通过，脚本回归增至 19 项。 | [复测与原始日志核验](docs/root-crash-retest.md) |
+| 2026-10-17：Root 100 轮混合压力 | 最终三环境各 100 轮、96 次冒烟、33 段诊断通过，含压力期间作用域切换和重启恢复；脚本回归 27 项。首轮原生崩溃根因仍未确认，配套嵌入式回归第 10 轮失败。 | [完整结果、失败与原始证据](docs/root-stress-testing.md) |
 
 这些数字是对应运行的测试或断言执行次数，其中多个阶段复用相同场景，不能相加后宣称有同等数量的独立测试。真实 Hook 的设备证据来自固定 API 35、google_apis、x86_64 云端模拟器组合。
 
 Root 路径已验证的组合是 Magisk v30.7 + Vector v2.2 / 3080 Release。更新后的 CI 已于 2026-10-16 在三个全新环境复跑通过；各轮结果只对应其记录的固定提交，不追溯为其他版本或设备通过。
+
+2026-10-17 的 Root 限定压力复测也已通过，但**不是全项目全部通过**：首轮出现过一次非预期 ART 原生崩溃，后续通过不等于根因已修复；同提交嵌入式路径在第 10 轮普通页读到 Hook=false，未完成其 100 轮。两个问题均保留开放，详见上表证据。
 
 **尚未完成：** ARM 真机、厂商系统、真实商业广告 SDK、NDK / direct channel 覆盖、长期压力测试、管理器图形界面易用性、竞品对照及法律审查。模拟器通过不代表这些项目已经通过。
 
@@ -108,7 +111,7 @@ cd anti-shake-guard/validation
 ### 7. 自动化、隐私与恢复
 
 - [常规工作流](.github/workflows/validation.yml)：构建、JVM/Robolectric、Python 判据回归、Lint、无 Hook 基线、未加载模块负例、三轮 LSPatch 真实 Hook、100 轮混合生命周期和恢复基线。LSPatch 测试使用 Java 21，只重打包自建靶场。
-- [Root 工作流](.github/workflows/root-validation.yml)：手动触发三个独立云端任务，通过固定 Magisk / Vector 工具验证原始 APK 的作用域、重启保持和停用恢复，并以受控 Java/原生崩溃验证日志采集。
+- [Root 工作流](.github/workflows/root-validation.yml)：手动触发三个独立云端任务，各完成 100 轮生命周期，穿插作用域移除/恢复和真正重启；保留原有停用恢复及受控 Java/原生崩溃校准。每任务上限 60 分钟，不需要真机。
 - 两条路径均保留无标签过滤的日志、DropBox、退出历史和诊断清单。采集失败不得当作“没有崩溃”；重启期间仍有 ADB 不可用的明确边界，见[完整诊断说明](docs/root-crash-retest.md)。
 - Actions 产物保留 7 天，旧下载链接可能过期；仓库中的 JSONL 和结果说明用于持久追溯。第三方框架和修补镜像不进入交付产物。
 
@@ -118,7 +121,7 @@ cd anti-shake-guard/validation
 
 ### 8. 下一阶段
 
-- 将已通过的 100 轮嵌入式复测与 Root 作用域、重启恢复组合为更长序列；Root 下的 100 轮混合压力测试仍未完成。
+- 优先定位压力首轮的 ART 原生崩溃根因与本次嵌入式 Hook 标记异常；Root 100 轮已通过，不将复测成功当作两个故障已修复。
 - 继续维护 SDK / 诊断兼容性，补真实 ANR 正例及更多启动期断连运行样本；完整产品级稳定性验收仍未完成。
 - 在专用 ARM 真机和不同厂商系统上记录兼容性与副作用。
 - 完成同条件竞品对照，以及至少 5 名独立体验者的启用测试。
@@ -187,10 +190,13 @@ Automatic closing uses explicit fixture rules. It does not use general OCR or a 
 | 2026-10-15: CI maintenance | Code regressions, Lint, three APK builds, and 40 black-box assertions passed after resolving runner disk exhaustion during emulator startup. | [Maintenance results](docs/ci-maintenance.md) |
 | 2026-10-16: mixed lifecycle | 45 JVM/Robolectric executions, 8 Python checks, 40 existing smoke assertions, and 100 mixed emulator cycles passed: 20 each for cold starts, same-process reopenings, background returns, fixture ads, and ordinary pages. | [Cycle evidence and harness fixes](docs/lifecycle-testing.md) |
 | 2026-10-16: updated Root and full diagnostics | Three environments passed 144 functional assertions, 6 deliberate Java/native crashes and 36 Root capture segments. Embedded validation passed another 100 cycles with full logs; script regressions increased to 19. | [Retest and raw-log verification](docs/root-crash-retest.md) |
+| 2026-10-17: 100-cycle mixed Root stress | Final three environments each passed 100 cycles, 96 smoke assertions and 33 capture segments, including stress scope changes/reboot recovery; 27 script regressions passed. An earlier native crash remains unresolved; the companion embedded run failed at cycle 10. | [Full results, failures and raw evidence](docs/root-stress-testing.md) |
 
 Counts refer to test or assertion executions in their respective runs. Stages reuse scenarios; adding these counts does not give a count of distinct tests. Real-hook device evidence comes from fixed API 35, google_apis, x86_64 cloud-emulator combinations.
 
 The validated Root combination is Magisk v30.7 with Vector v2.2 / 3080 Release. The updated CI passed in three fresh environments on 2026-10-16. Every result applies only to its recorded commit, not to other versions or devices.
+
+The bounded 2026-10-17 Root stress retest passed, but **the project is not all-green**: the first run had an unexpected ART native crash whose root cause remains open. The same-commit embedded route failed with Hook=false on cycle 10's ordinary page and did not complete 100 cycles. Later Root success does not repair or override either failure.
 
 **Not yet validated:** physical ARM devices, vendor ROMs, commercial advertising SDKs, NDK/direct-channel coverage, long-running stress behavior, manager-GUI usability, comparative performance, and legal review. Emulator results do not establish these outcomes.
 
@@ -240,7 +246,7 @@ A successful build verifies compilation, not protection. Robolectric does not ex
 ### 7. Automation, privacy, and recovery
 
 - [Regular workflow](.github/workflows/validation.yml): builds, JVM/Robolectric, Python evidence-check regressions, Lint, an unhooked baseline, missing-module negative checks, three real LSPatch rounds, 100 mixed lifecycle cycles, and restoration. The LSPatch step uses Java 21 and repackages only this project's fixture.
-- [Root workflow](.github/workflows/root-validation.yml): manually launches three independent cloud jobs, using pinned Magisk/Vector tools to check scope, reboot persistence and disable/recovery with original APKs, plus deliberate Java/native crashes to validate capture.
+- [Root workflow](.github/workflows/root-validation.yml): manually launches three independent cloud jobs, each running 100 lifecycle cycles interleaved with scope removal/restoration and actual reboots, retaining disable/recovery checks and deliberate Java/native crash calibration. Each job is limited to 60 minutes; no physical device is required.
 - Both paths retain unfiltered logs, DropBox, exit history and capture manifests. Collection failure is not evidence of no crashes; ADB is still unavailable during reboot. See [full diagnostic boundaries](docs/root-crash-retest.md).
 - Actions artifacts are retained for 7 days, so older downloads may expire. Repository JSONL files and reports preserve the recorded evidence. Third-party frameworks and patched images are excluded from deliverables.
 
@@ -250,7 +256,7 @@ To recover, disable the module or remove scope in the manager, then force-stop a
 
 ### 8. Next development stages
 
-- Combine the passing 100-cycle embedded suite with Root scope and reboot recovery in a longer sequence. A 100-cycle mixed Root stress test remains incomplete.
+- First investigate the earlier ART native crash and current embedded Hook-marker failure. The passing Root 100-cycle retest does not establish that either fault is fixed.
 - Maintain SDK/diagnostic compatibility, add runtime ANR calibration and collect more startup-disconnection samples. Full product-level stability acceptance remains incomplete.
 - Record compatibility and unintended effects on dedicated ARM devices and vendor ROMs.
 - Perform controlled comparisons and activation studies with at least 5 independent participants.

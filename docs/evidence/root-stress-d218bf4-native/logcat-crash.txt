@@ -1,0 +1,27 @@
+--------- beginning of crash
+10-17 09:26:44.666  7020  7024 F libc    : Fatal signal 11 (SIGSEGV), code 1 (SEGV_MAPERR), fault addr 0xd in tid 7024 (onPool-worker-1), pid 7020 (re.protectedapp)
+10-17 09:26:45.158  7034  7034 F DEBUG   : *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** ***
+10-17 09:26:45.159  7034  7034 F DEBUG   : Build fingerprint: 'google/sdk_gphone64_x86_64/emu64xa:15/AE3A.240806.043/12960925:userdebug/dev-keys'
+10-17 09:26:45.159  7034  7034 F DEBUG   : Revision: '0'
+10-17 09:26:45.159  7034  7034 F DEBUG   : ABI: 'x86_64'
+10-17 09:26:45.159  7034  7034 F DEBUG   : Timestamp: 2026-10-17 09:26:44.721472603+0000
+10-17 09:26:45.159  7034  7034 F DEBUG   : Process uptime: 2s
+10-17 09:26:45.159  7034  7034 F DEBUG   : Cmdline: <pre-initialized>
+10-17 09:26:45.159  7034  7034 F DEBUG   : pid: 7020, tid: 7024, name: onPool-worker-1  >>> <pre-initialized> <<<
+10-17 09:26:45.159  7034  7034 F DEBUG   : uid: 10211
+10-17 09:26:45.159  7034  7034 F DEBUG   : signal 11 (SIGSEGV), code 1 (SEGV_MAPERR), fault addr 0x000000000000000d
+10-17 09:26:45.159  7034  7034 F DEBUG   : Cause: null pointer dereference
+10-17 09:26:45.159  7034  7034 F DEBUG   :     rax 676d2802e36540fb  rbx 00007f8f415fdac0  rcx 0000000000000030  rdx 00007f8f415fdac0
+10-17 09:26:45.159  7034  7034 F DEBUG   :     r8  0000000000000030  r9  0000000000030003  r10 0000000000000008  r11 0000000000000246
+10-17 09:26:45.159  7034  7034 F DEBUG   :     r12 0000000000000000  r13 00007f8f34ef4400  r14 00007f8f415fdbf0  r15 00007f8f415fdac0
+10-17 09:26:45.159  7034  7034 F DEBUG   :     rdi 000000000000000b  rsi 00007f8f415fdbf0
+10-17 09:26:45.159  7034  7034 F DEBUG   :     rbp 000000000000000b  rsp 00007f8f415fd8a0  rip 00007f8c7bb03641
+10-17 09:26:45.159  7034  7034 F DEBUG   : 7 total frames
+10-17 09:26:45.159  7034  7034 F DEBUG   : backtrace:
+10-17 09:26:45.159  7034  7034 F DEBUG   :       #00 pc 0000000000503641  /apex/com.android.art/lib64/libart.so (art::art_sigsegv_handler(int, siginfo*, void*) (.__uniq.101192393727222708201094543451577629235)+49) (BuildId: 62338b1c62e3991543c9b8b8bae2b361)
+10-17 09:26:45.159  7034  7034 F DEBUG   :       #01 pc 0000000000006d8b  /apex/com.android.art/lib64/libsigchain.so (art::SignalChain::Handler(int, siginfo*, void*)+555) (BuildId: c8edd71ae4e41429c90d9d868c3681cc)
+10-17 09:26:45.159  7034  7034 F DEBUG   :       #02 pc 0000000000081d90  /apex/com.android.runtime/lib64/bionic/libc.so (__restore_rt+0) (BuildId: eb58b4d427279994f00c0e1818477e4f)
+10-17 09:26:45.159  7034  7034 F DEBUG   :       #03 pc 00000000009b25ff  /apex/com.android.art/lib64/libart.so (BuildId: 62338b1c62e3991543c9b8b8bae2b361)
+10-17 09:26:45.159  7034  7034 F DEBUG   :       #04 pc 00000000008c5b93  /apex/com.android.art/lib64/libart.so (art::Thread::CreateCallback(void*)+1123) (BuildId: 62338b1c62e3991543c9b8b8bae2b361)
+10-17 09:26:45.159  7034  7034 F DEBUG   :       #05 pc 0000000000001b6c  <unknown>
+10-17 09:26:45.159  7034  7034 F DEBUG   :       #06 pc 00000000008c5725  /apex/com.android.art/lib64/libart.so (art::Thread::CreateCallbackWithUffdGc(void*)+5) (BuildId: 62338b1c62e3991543c9b8b8bae2b361)
