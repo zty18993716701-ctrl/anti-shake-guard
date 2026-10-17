@@ -1,0 +1,38 @@
+name: ART address forensics (read-only disposable emulator)
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  art-forensics:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - uses: android-actions/setup-android@be39fa834029ff78f1a44aa3bb0819b8fc2bd8fd
+        with:
+          packages: platform-tools
+      - name: Allow isolated runner KVM
+        run: sudo chmod a+rw /dev/kvm
+      - name: Read exact ART build and original crash addresses
+        uses: ReactiveCircus/android-emulator-runner@a421e43855164a8197daf9d8d40fe71c6996bb0d
+        with:
+          api-level: 35
+          target: google_apis
+          arch: x86_64
+          profile: pixel_2
+          emulator-port: 5554
+          ram-size: 2048M
+          emulator-boot-timeout: 300
+          script: |
+            PYTHONPATH=validation/scripts python3 -c "from emulator_adb import ensure_root; ensure_root('emulator-5554')"
+            cd validation && bash scripts/ci-art-symbols.sh build/art-evidence
+      - name: Preserve text only, never distribute the runtime binary
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        with:
+          name: art-forensics-${{ github.sha }}
+          retention-days: 7
+          path: validation/build/art-evidence/*
