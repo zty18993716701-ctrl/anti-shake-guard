@@ -3,7 +3,7 @@ import sys
 import tempfile
 import unittest
 
-from emulator_adb import ensure_root
+from emulator_adb import ensure_root, lock_rotation
 
 
 class RootReadinessTest(unittest.TestCase):
@@ -39,6 +39,23 @@ class RootReadinessTest(unittest.TestCase):
     def test_phone_is_rejected(self):
         with self.assertRaises(ValueError):
             ensure_root("phone")
+
+    def test_rotation_is_fixed_without_changing_sensor_access(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder)
+            self.assertEqual(lock_rotation("emulator-5554", adb=self.fake(root)),
+                             {"accelerometer_rotation": "0", "user_rotation": "0"})
+            self.assertEqual((root / "accelerometer_rotation").read_text(), "0")
+            self.assertEqual((root / "user_rotation").read_text(), "0")
+        with self.assertRaises(ValueError):
+            lock_rotation("phone")
+
+    def test_ignored_rotation_setting_is_not_reported_as_locked(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder)
+            (root / "ignore-rotation").touch()
+            with self.assertRaisesRegex(AssertionError, "rotation"):
+                lock_rotation("emulator-5554", adb=self.fake(root))
 
 
 if __name__ == "__main__":

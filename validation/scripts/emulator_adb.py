@@ -5,6 +5,18 @@ import subprocess
 import time
 
 
+def lock_rotation(serial, adb="adb"):
+    if not re.fullmatch(r"emulator-\d+", serial):
+        raise ValueError("Only an explicitly selected disposable emulator is supported")
+    settings = {}
+    for key in ("accelerometer_rotation", "user_rotation"):
+        command = [adb, "-s", serial, "shell", "settings"]
+        subprocess.run(command + ["put", "system", key, "0"], check=True, capture_output=True, timeout=10)
+        settings[key] = subprocess.check_output(command + ["get", "system", key], text=True, timeout=10).strip()
+    assert settings == {"accelerometer_rotation": "0", "user_rotation": "0"}, "Display rotation not locked: " + str(settings)
+    return settings
+
+
 def ensure_root(serial, adb="adb", timeout=30):
     if not re.fullmatch(r"emulator-\d+", serial):
         raise ValueError("Only an explicitly selected disposable emulator is supported")

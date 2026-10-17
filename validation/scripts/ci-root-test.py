@@ -7,7 +7,7 @@ import subprocess
 import time
 from root_evidence import capture
 from crash_evidence import Evidence
-from emulator_adb import ensure_root
+from emulator_adb import ensure_root, lock_rotation
 from root_stress import check_chunk, check_stress
 
 os.chdir(Path(__file__).resolve().parent.parent)
@@ -168,6 +168,7 @@ def stress():
 
 try:
     root()
+    save("display-configuration.json", lock_rotation(SERIAL))
     save("environment.json", {"fingerprint": adb("shell", "getprop", "ro.build.fingerprint"),
                               "magisk": adb("shell", "/debug_ramdisk/magisk", "-v"),
                               "selinux": adb("shell", "getenforce")})

@@ -4,6 +4,7 @@ import argparse
 import json
 import subprocess
 import time
+from emulator_adb import lock_rotation
 
 
 PROTECTED = "dev.antishake.fixture.protectedapp"
@@ -33,7 +34,7 @@ def check_motion(before, after, protected, light, resumes):
     assert after["hook"] == str(protected).lower(), "Module not loaded or control unexpectedly hooked"
     assert after["lightAvailable"] == "true" and int(after["lightEvents"]) > 0, after
     assert float(after["lastLight"]) == light, "Stale light evidence"
-    assert int(after["resumes"]) == resumes, "Probe was not resumed as expected"
+    assert int(after["resumes"]) == resumes, "Probe was not resumed as expected: " + str(after)
     if protected:
         assert after["screen"] == "PROBE" and after["navigated"] == "false", after
         assert after["events"] == "0" and after["sensorCount"] == "0", after
@@ -61,6 +62,8 @@ def main():
         plan = cycle_plan(args.start_cycle, args.cycles)
     except ValueError as error:
         parser.error(str(error))
+    # Motion injection must not add unplanned system-driven Activity recreation.
+    lock_rotation(args.serial)
 
     def adb(*command):
         return subprocess.check_output(["adb", "-s", args.serial, *command], text=True, timeout=25).strip()

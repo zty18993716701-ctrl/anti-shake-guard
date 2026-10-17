@@ -21,6 +21,16 @@ if args == ["root"]:
     print("restarting adbd as root")
 elif args == ["shell", "id", "-u"]:
     print("2000" if (root / "stay-shell").exists() else "0")
+elif args[:2] == ["shell", "settings"]:
+    operation, namespace, key, *value = args[2:]
+    assert namespace == "system" and key in ("accelerometer_rotation", "user_rotation")
+    if operation == "put":
+        if not (root / "ignore-rotation").exists():
+            (root / key).write_text(value[0])
+    elif operation == "get":
+        print((root / key).read_text() if (root / key).exists() else "null")
+    else:
+        raise AssertionError(operation)
 elif args[:2] == ["shell", "log"]:
     if not ((root / "lose-markers").exists()
             or ((root / "lose-end").exists() and args[-1].endswith(":END"))):
