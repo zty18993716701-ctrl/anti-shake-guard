@@ -5,6 +5,7 @@ import json
 import subprocess
 import time
 from emulator_adb import lock_rotation
+from startup_diagnostic import diagnose
 
 
 PROTECTED = "dev.antishake.fixture.protectedapp"
@@ -55,6 +56,8 @@ def main():
     parser.add_argument("--serial", required=True)
     parser.add_argument("--start-cycle", type=int, default=1)
     parser.add_argument("--cycles", type=int, default=100)
+    parser.add_argument("--startup-only", action="store_true",
+                        help="Repeat normal-page cold starts to isolate missing package callbacks")
     args = parser.parse_args()
     if not args.serial.startswith("emulator-"):
         parser.error("Only an explicitly selected disposable emulator is supported")
@@ -62,6 +65,8 @@ def main():
         plan = cycle_plan(args.start_cycle, args.cycles)
     except ValueError as error:
         parser.error(str(error))
+    if args.startup_only:
+        plan = [dict(row, kind="normal", scenario="normal") for row in plan]
     # Motion injection must not add unplanned system-driven Activity recreation.
     lock_rotation(args.serial)
 
@@ -155,7 +160,13 @@ def main():
                 # Recheck the final state, not just a transient successful snapshot.
                 time.sleep(3 if scenario == "normal" else 0.5)
                 state = evidence(PROTECTED)
-                check_page(state, scenario)
+                try:
+                    check_page(state, scenario)
+                except AssertionError:
+                    print(json.dumps({"cycle": cycle, "kind": kind, "result": "FAIL",
+                                      "state": state, "pid": previous,
+                                      "diagnostic": diagnose(adb, PROTECTED, previous, cycle)}), flush=True)
+                    raise
                 current = adb("shell", "pidof", PROTECTED)
                 check_process("warm", previous, current)
                 entry["scenario"] = scenario
@@ -163,7 +174,7 @@ def main():
             counts[kind] += 1
             print(json.dumps(dict(entry, result="PASS"), ensure_ascii=False), flush=True)
         assert counts == {kind: sum(row["kind"] == kind for row in plan) for kind in counts}, counts
-        print(json.dumps({"suite": "lifecycle", "result": "PASS", "cycles": len(plan),
+        print(json.dumps({"suite": "startup" if args.startup_only else "lifecycle", "result": "PASS", "cycles": len(plan),
                           "startCycle": args.start_cycle, "counts": counts}), flush=True)
     finally:
         sensor("acceleration", "0:0:9.81")

@@ -17,7 +17,14 @@ import dev.antishake.policy.MotionPolicy;
 
 /** The Xposed manager's user-selected scope is the only package selection authority. */
 public final class GuardModule implements IXposedHookLoadPackage {
+  public GuardModule() {
+    XposedBridge.log("[DEBUG-startup] module instance constructed");
+  }
+
   @Override public void handleLoadPackage(LoadPackageParam app) {
+    XposedBridge.log("[DEBUG-startup] callback package=" + app.packageName
+        + " appInfo=" + (app.appInfo == null ? "null" : app.appInfo.flags)
+        + " classLoader=" + app.classLoader);
     if (app.packageName.equals("dev.antishake.guard") || app.appInfo == null
         || (app.appInfo.flags & ApplicationInfo.FLAG_SYSTEM) != 0) return;
 

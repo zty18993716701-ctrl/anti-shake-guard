@@ -29,6 +29,10 @@ for iteration in 1 2 3; do
     | tee "build/device-evidence/lspatch-hooked-$iteration.jsonl"
 done
 
+# Focused reproduction before the unchanged mixed lifecycle acceptance.
+timeout 900s python3 -u scripts/emulator-lifecycle.py --serial emulator-5554 --startup-only 2>&1 \
+  | tee build/device-evidence/lspatch-startup.jsonl
+
 # Same loaded module, repeated real lifecycle transitions; bounded to 15 minutes.
 timeout 900s python3 -u scripts/emulator-lifecycle.py --serial emulator-5554 2>&1 \
   | tee build/device-evidence/lspatch-lifecycle.jsonl

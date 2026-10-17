@@ -201,13 +201,18 @@ try:
     cli("scope", "set", MODULE, PROTECTED + "/0")
     configuration("scope-restored", True, True)
     smoke("root-scope-restored", "hooked")
+    with Evidence(EVIDENCE, "startup-reproduction", SERIAL):
+        result = capture(["python3", "-u", "scripts/emulator-lifecycle.py", "--serial", SERIAL,
+                          "--startup-only"], EVIDENCE / "startup-reproduction.jsonl", 900)
+        print(result.stdout, flush=True)
+        assert result.returncode == 0, "Focused startup reproduction failed"
     stress()
     result = cli("modules", "disable", MODULE)
     assert result["Failed"] == [] and MODULE in result["Disabled"], result
     configuration("disabled", True, False)
     smoke("root-disabled", "baseline")
     reports = [json.loads(path.read_text()) for path in EVIDENCE.glob("*/capture.json")]
-    assert len(reports) == 33 and all(report["complete"] and report["operation_succeeded"] for report in reports), reports
+    assert len(reports) == 34 and all(report["complete"] and report["operation_succeeded"] for report in reports), reports
     save("capture-summary.json", {"result": "PASS", "segments": len(reports), "calibrations": ["java", "native"]})
     print(json.dumps({"rootEvidence": "PASS", "segments": len(reports)}), flush=True)
 finally:
