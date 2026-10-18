@@ -60,8 +60,12 @@ def ready():
     # The readiness check has already failed. Diagnose only; never restart or turn this into PASS.
     result = capture(["adb", "-s", SERIAL, "shell", "pidof", "vectord", "org.matrix.vector.daemon"],
                      EVIDENCE / "framework-timeout-pids.txt", 10, best_effort=True)
-    for pid in result.stdout.split() if result is not None else ():
+    capture(["adb", "-s", SERIAL, "shell", "ps", "-A", "-o", "PID,PPID,NAME,ARGS"],
+            EVIDENCE / "framework-timeout-processes.txt", 10, best_effort=True)
+    for pid in result.stdout.split() if result is not None and result.returncode == 0 else ():
         if pid.isdecimal():
+            capture(["adb", "-s", SERIAL, "shell", "debuggerd", "-b", pid],
+                    EVIDENCE / ("framework-timeout-native-" + pid + ".txt"), 20, best_effort=True)
             capture(["adb", "-s", SERIAL, "shell", "kill", "-3", pid],
                     EVIDENCE / ("framework-timeout-quit-" + pid + ".txt"), 10, best_effort=True)
     time.sleep(2)
