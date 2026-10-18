@@ -61,10 +61,11 @@ class Evidence:
             self.report["errors"].append(str(error))
 
     def __exit__(self, error_type, primary, traceback):
+        end_error = None
         try:
             self.marker("END")
         except Exception as error:
-            self.report["errors"].append(str(error))
+            end_error = str(error)
         finally:
             if hasattr(self, "process"):
                 self.process.terminate()
@@ -86,9 +87,27 @@ class Evidence:
         tombstones.mkdir(exist_ok=True)
         self.snapshot("tombstones-pull.txt", ["pull", "/data/tombstones/.", str(tombstones)])
 
-        text = (self.folder / "logcat-all.txt").read_text(errors="replace")
+        stream = (self.folder / "logcat-all.txt").read_bytes()
+        text = stream.decode(errors="replace")
         start = text.find(self.token + ":START")
         end = text.find(self.token + ":END")
+        self.report["coverage_file"] = "logcat-all.txt"
+        if start >= 0 and end <= start and self.report["commands"].get("logcat-snapshot.txt", {}).get("returncode") == 0:
+            snapshot = (self.folder / "logcat-snapshot.txt").read_bytes()
+            snapshot_start = snapshot.find((self.token + ":START").encode())
+            snapshot_end = snapshot.find((self.token + ":END").encode())
+            records = iter(snapshot.splitlines(keepends=True))
+            # A byte-exact ordered superset can fill stream omissions without discarding any raw record.
+            if 0 <= snapshot_start < snapshot_end and all(
+                    any(record == line for record in records) for line in stream.splitlines(keepends=True)):
+                self.report["coverage_file"] = "logcat-snapshot.txt"
+                text = snapshot.decode(errors="replace")
+                start, end = text.find(self.token + ":START"), text.find(self.token + ":END")
+        if end_error:
+            if 0 <= start < end:
+                self.report["stream_warning"] = end_error
+            else:
+                self.report["errors"].append(end_error)
         if start < 0 or end <= start:
             self.report["errors"].append("Log coverage markers missing or out of order")
         elif not self.allow_crash:

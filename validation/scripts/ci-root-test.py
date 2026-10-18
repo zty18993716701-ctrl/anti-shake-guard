@@ -57,6 +57,16 @@ def ready():
             return cli("status")
         except (subprocess.CalledProcessError, json.JSONDecodeError, AssertionError):
             time.sleep(2)
+    # The readiness check has already failed. Diagnose only; never restart or turn this into PASS.
+    result = capture(["adb", "-s", SERIAL, "shell", "pidof", "vectord", "org.matrix.vector.daemon"],
+                     EVIDENCE / "framework-timeout-pids.txt", 10, best_effort=True)
+    for pid in result.stdout.split() if result is not None else ():
+        if pid.isdecimal():
+            capture(["adb", "-s", SERIAL, "shell", "kill", "-3", pid],
+                    EVIDENCE / ("framework-timeout-quit-" + pid + ".txt"), 10, best_effort=True)
+    time.sleep(2)
+    capture(["adb", "-s", SERIAL, "shell", "cat", "/data/anr/*"],
+            EVIDENCE / "framework-timeout-threads.txt", 15, best_effort=True)
     raise AssertionError("Vector CLI not ready after 90 seconds")
 
 

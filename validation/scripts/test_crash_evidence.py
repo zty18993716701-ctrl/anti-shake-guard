@@ -39,6 +39,23 @@ class CrashEvidenceTest(unittest.TestCase):
             report = json.loads((root / "evidence" / "phase" / "capture.json").read_text())
             self.assertFalse(report["complete"])
 
+    def test_full_snapshot_can_cover_stream_only_marker_loss_without_replacing_raw_stream(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder)
+            (root / "stream-omit-end").touch()
+            with Evidence(root / "evidence", "phase", "emulator-5554",
+                          adb=self.fake_adb(root), marker_timeout=0.2):
+                with (root / "device.log").open("a") as log:
+                    log.write("unrelated-tag: preserved record\n")
+            evidence = root / "evidence" / "phase"
+            report = json.loads((evidence / "capture.json").read_text())
+            self.assertTrue(report["complete"])
+            self.assertEqual(report["coverage_file"], "logcat-snapshot.txt")
+            self.assertIn("END", report["stream_warning"])
+            self.assertNotIn(":END", (evidence / "logcat-all.txt").read_text())
+            self.assertIn(":END", (evidence / "logcat-snapshot.txt").read_text())
+            self.assertIn("preserved record", (evidence / "logcat-snapshot.txt").read_text())
+
     def test_missing_native_dumps_fail_capture_but_do_not_mask_primary_error(self):
         with tempfile.TemporaryDirectory() as folder:
             root = Path(folder)
@@ -53,6 +70,32 @@ class CrashEvidenceTest(unittest.TestCase):
             report = json.loads((root / "evidence" / "failed" / "capture.json").read_text())
             self.assertFalse(report["complete"])
             self.assertFalse(report["operation_succeeded"])
+
+    def test_snapshot_with_markers_cannot_cover_records_it_lost(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder)
+            (root / "stream-omit-end").touch()
+            (root / "snapshot-loses-record").touch()
+            with self.assertRaisesRegex(AssertionError, "Incomplete"):
+                with Evidence(root / "evidence", "phase", "emulator-5554",
+                              adb=self.fake_adb(root), marker_timeout=0.2):
+                    with (root / "device.log").open("a") as log:
+                        log.write("unrelated-tag: missing from snapshot\n")
+            report = json.loads((root / "evidence" / "phase" / "capture.json").read_text())
+            self.assertFalse(report["complete"])
+
+    def test_crash_only_in_complete_snapshot_still_fails_the_segment(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder)
+            (root / "stream-omit-end").touch()
+            with self.assertRaisesRegex(AssertionError, "Unexpected fixture crash"):
+                with Evidence(root / "evidence", "phase", "emulator-5554",
+                              adb=self.fake_adb(root), marker_timeout=0.2):
+                    with (root / "device.log").open("a") as log:
+                        log.write("snapshot-only: Process: dev.antishake.guard, PID: 10\n")
+            report = json.loads((root / "evidence" / "phase" / "capture.json").read_text())
+            self.assertEqual(report["coverage_file"], "logcat-snapshot.txt")
+            self.assertFalse(report["complete"])
 
     def test_java_native_and_anr_are_rejected_outside_calibration(self):
         for line in ("Process: dev.antishake.guard, PID: 10",

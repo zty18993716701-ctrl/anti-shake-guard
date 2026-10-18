@@ -38,12 +38,19 @@ elif args[:2] == ["shell", "log"]:
             output.write(args[-1] + "\n")
 elif args and args[0] == "logcat":
     if "-d" in args:
-        print(log.read_text() if "all" in args else "", end="")
+        snapshot = log.read_text() if "all" in args else ""
+        if (root / "snapshot-loses-record").exists():
+            snapshot = "".join(line for line in snapshot.splitlines(keepends=True) if "missing from snapshot" not in line)
+        print(snapshot, end="")
     else:
         position = 0
         while True:
             data = log.read_text()
-            sys.stdout.write(data[position:])
+            tail = data[position:]
+            if (root / "stream-omit-end").exists():
+                tail = "".join(line for line in tail.splitlines(keepends=True)
+                               if not line.strip().endswith(":END") and "snapshot-only:" not in line)
+            sys.stdout.write(tail)
             sys.stdout.flush()
             position = len(data)
             time.sleep(0.01)
