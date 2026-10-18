@@ -108,7 +108,9 @@
   "followup": {
     "change": "Read-only bounded crash buffer, ApplicationExitInfo and PID triage printed at the original state timeout before full capture cleanup",
     "scriptTests": 37,
-    "androidRetest": "PENDING",
+    "androidRetest": "IN PROGRESS; not a verified application fix",
+    "source": "ed1fef2fc87a18fe1f1e41b60eaa7b574cc0992a",
+    "embeddedRunId": 39138791733,
     "productOrFrameworkLogicChanged": false
   },
   "limits": [
