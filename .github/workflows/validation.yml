@@ -38,6 +38,8 @@ jobs:
           :fixture:testProtectedAppDebugUnitTest :fixture:testControlDebugUnitTest
           :guard:assembleDebug :fixture:assembleDebug
           :guard:lintDebug :fixture:lintProtectedAppDebug :fixture:lintControlDebug
+      - name: Check actual module is single DEX
+        run: python3 validation/scripts/check-module-dex.py validation/guard/build/outputs/apk/debug/guard-debug.apk
       - name: Release disposable build cache before emulator
         working-directory: validation
         run: |

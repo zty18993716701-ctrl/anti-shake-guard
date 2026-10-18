@@ -26,11 +26,12 @@ jobs:
       - uses: android-actions/setup-android@be39fa834029ff78f1a44aa3bb0819b8fc2bd8fd # v4.0.4
         with:
           packages: platform-tools
-      - name: Build unchanged module and fixtures
+      - name: Build candidate module and unchanged fixtures
         working-directory: validation
         run: |
           sdkmanager 'platforms;android-35' 'build-tools;34.0.0'
           ./gradlew --no-daemon :guard:assembleDebug :fixture:assembleDebug
+          python3 scripts/check-module-dex.py guard/build/outputs/apk/debug/guard-debug.apk
       - name: Release disposable build cache before emulator
         working-directory: validation
         run: |

@@ -22,3 +22,23 @@ if python3 scripts/emulator-lifecycle.py --serial emulator-5554 > build/device-e
 fi
 cat build/device-evidence/lifecycle-no-hook-negative.txt
 grep -q 'Module not loaded' build/device-evidence/lifecycle-no-hook-negative.txt
+# Calibrate in-place diagnosis on a genuinely unhooked Android process, not a fake ADB.
+if python3 scripts/emulator-lifecycle.py --serial emulator-5554 --startup-only --cycles 1 > build/device-evidence/startup-no-hook-negative.txt 2>&1; then
+  echo 'ERROR: unhooked emulator falsely passed startup verification' >&2
+  exit 1
+fi
+cat build/device-evidence/startup-no-hook-negative.txt
+python3 - <<'PY'
+import json
+from pathlib import Path
+rows = [json.loads(line) for line in Path("build/device-evidence/startup-no-hook-negative.txt").read_text().splitlines()
+        if line.startswith('{')]
+assert len(rows) == 1 and rows[0]["result"] == "FAIL", rows
+row = rows[0]
+probe = row["diagnostic"]
+assert row["state"]["hook"] == "false" and row["state"]["screen"] == "MAIN", row
+assert probe["outcome"] == "motion-navigation-marker-false", probe
+assert probe["beforePid"] == probe["afterPid"] == row["pid"], probe
+assert probe["original"] == row["state"], probe
+print(json.dumps({"startupDiagnosticNegative": "PASS", "pid": row["pid"]}))
+PY

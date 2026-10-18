@@ -153,24 +153,27 @@ def main():
                                                   "finalPid": final_pid, "before": before, "after": after}
             else:
                 scenario = planned["scenario"]
-                launch(PROTECTED, scenario)
+                state = launch(PROTECTED, scenario)
                 previous = adb("shell", "pidof", PROTECTED)
                 expected = "RETURNED" if scenario == "missing" else ("NONE" if scenario == "normal" else "CLOSED")
-                wait_for(PROTECTED, lambda state: state.get("screen") == "MAIN" and state.get("close") == expected)
-                # Recheck the final state, not just a transient successful snapshot.
-                time.sleep(3 if scenario == "normal" else 0.5)
-                state = evidence(PROTECTED)
                 try:
+                    wait_for(PROTECTED, lambda state: state.get("screen") == "MAIN" and state.get("close") == expected)
+                    # Recheck the final state, not just a transient successful snapshot.
+                    time.sleep(3 if scenario == "normal" else 0.5)
+                    state = evidence(PROTECTED)
                     check_page(state, scenario)
                 except AssertionError:
+                    diagnostic = diagnose(adb, PROTECTED, previous, cycle)
                     print(json.dumps({"cycle": cycle, "kind": kind, "result": "FAIL",
-                                      "state": state, "pid": previous,
-                                      "diagnostic": diagnose(adb, PROTECTED, previous, cycle)}), flush=True)
+                                      "state": diagnostic.get("original", state), "pid": previous,
+                                      "diagnostic": diagnostic}), flush=True)
                     raise
                 current = adb("shell", "pidof", PROTECTED)
                 check_process("warm", previous, current)
                 entry["scenario"] = scenario
                 entry["evidence"][PROTECTED] = {"beforePid": previous, "finalPid": current, "after": state}
+                if args.startup_only:
+                    entry["threads"] = adb("shell", "cat", f"/proc/{current}/task/*/comm").splitlines()
             counts[kind] += 1
             print(json.dumps(dict(entry, result="PASS"), ensure_ascii=False), flush=True)
         assert counts == {kind: sum(row["kind"] == kind for row in plan) for kind in counts}, counts

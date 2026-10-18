@@ -5,7 +5,7 @@ from startup_diagnostic import diagnose
 
 
 class StartupDiagnosticTest(unittest.TestCase):
-    def run_probe(self, protected=False, restarted=False, dead=False):
+    def run_probe(self, protected=False, restarted=False, dead=False, stale=False):
         calls = []
         phase = {"opened": False, "motion": False}
 
@@ -21,11 +21,12 @@ class StartupDiagnosticTest(unittest.TestCase):
                 phase["motion"] = True
             if args[:3] == ("shell", "run-as", "dev.antishake.fixture.protectedapp"):
                 moved = phase["motion"] and not protected
-                return "\n".join(["hook=false", "screen=" + ("TARGET" if moved else "PROBE"),
+                page = "MAIN" if not phase["opened"] else ("TARGET" if moved else "PROBE")
+                return "\n".join(["hook=false", "screen=" + page,
                                   "navigated=" + str(moved).lower(),
                                   "events=" + ("2" if moved else "0"),
                                   "sensorCount=" + ("0" if protected else "2"),
-                                  "lightEvents=1", "lastLight=710.0"])
+                                  "lightEvents=1", "lastLight=" + ("709.0" if stale else "710.0")])
             return "OK"
 
         return diagnose(adb, "dev.antishake.fixture.protectedapp", "101", 10,
@@ -36,6 +37,7 @@ class StartupDiagnosticTest(unittest.TestCase):
         self.assertEqual(result["outcome"], "motion-blocked-marker-false")
         self.assertEqual(result["beforePid"], "101")
         self.assertEqual(result["afterPid"], "101")
+        self.assertEqual(result["original"]["screen"], "MAIN")
         self.assertFalse(any("force-stop" in call or "rm" in call for call in calls))
 
     def test_real_motion_navigation_in_the_same_failed_process_is_retained(self):
@@ -51,6 +53,11 @@ class StartupDiagnosticTest(unittest.TestCase):
         result, calls = self.run_probe(dead=True)
         self.assertEqual(result["outcome"], "inconclusive")
         self.assertFalse(any("start" in call for call in calls))
+
+    def test_stale_light_cannot_be_mistaken_for_a_live_motion_probe(self):
+        result, _ = self.run_probe(protected=True, stale=True)
+        self.assertEqual(result["outcome"], "inconclusive")
+        self.assertIn("did not become ready", result["error"])
 
 
 if __name__ == "__main__":
