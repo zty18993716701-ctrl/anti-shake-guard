@@ -56,12 +56,15 @@ An experimental Android project for preventing unwanted motion-triggered navigat
 | 2026-10-16：混合生命周期 | 45 项 JVM/Robolectric、8 项 Python 回归、40 次既有黑盒断言及 100 轮模拟器混合复测通过；冷启动、同进程重开、前后台、靶场广告及普通页面各 20 轮。 | [逐轮证据与修复记录](docs/lifecycle-testing.md) |
 | 2026-10-16：更新后 Root 与完整诊断 | 三环境 144 次功能断言、6 次受控 Java/原生崩溃、36 个 Root 采集段通过；嵌入式 100 轮带完整日志再通过，脚本回归增至 19 项。 | [复测与原始日志核验](docs/root-crash-retest.md) |
 | 2026-10-17：Root 100 轮混合压力 | 最终三环境各 100 轮、96 次冒烟、33 段诊断通过，含压力期间作用域切换和重启恢复；脚本回归 27 项。首轮原生崩溃根因仍未确认，配套嵌入式回归第 10 轮失败。 | [完整结果、失败与原始证据](docs/root-stress-testing.md) |
+| 2026-10-18：单 DEX 候选与启动定位 | 嵌入式完成 100 次额外启动、100 轮混合、40 项冒烟及恢复；235 个 PID 的构造/包回调/安装逐一匹配。Root 组合与独立复测仍失败；日志缺口明确保留，采集器修复后正重新验收。脚本回归 34 项。 | [最新调查、归档核验与限制](docs/startup-diagnosis.md) |
 
 这些数字是对应运行的测试或断言执行次数，其中多个阶段复用相同场景，不能相加后宣称有同等数量的独立测试。真实 Hook 的设备证据来自固定 API 35、google_apis、x86_64 云端模拟器组合。
 
 Root 路径已验证的组合是 Magisk v30.7 + Vector v2.2 / 3080 Release。更新后的 CI 已于 2026-10-16 在三个全新环境复跑通过；各轮结果只对应其记录的固定提交，不追溯为其他版本或设备通过。
 
 2026-10-17 的 Root 限定压力复测也已通过，但**不是全项目全部通过**：首轮出现过一次非预期 ART 原生崩溃，后续通过不等于根因已修复；同提交嵌入式路径在第 10 轮普通页读到 Hook=false，未完成其 100 轮。两个问题均保留开放，详见上表证据。
+
+2026-10-18 的单 DEX 候选在一次完整嵌入式复测中未再出现回调遗漏，但不追溯更改历史失败，也不代表 Root 原生崩溃已修复或达到稳定发布标准。Root 默认执行独立 100 轮混合验收；额外启动诊断与历史组合复现可单独选择，不冒充混合轮数。
 
 **尚未完成：** ARM 真机、厂商系统、真实商业广告 SDK、NDK / direct channel 覆盖、长期压力测试、管理器图形界面易用性、竞品对照及法律审查。模拟器通过不代表这些项目已经通过。
 
@@ -191,12 +194,15 @@ Automatic closing uses explicit fixture rules. It does not use general OCR or a 
 | 2026-10-16: mixed lifecycle | 45 JVM/Robolectric executions, 8 Python checks, 40 existing smoke assertions, and 100 mixed emulator cycles passed: 20 each for cold starts, same-process reopenings, background returns, fixture ads, and ordinary pages. | [Cycle evidence and harness fixes](docs/lifecycle-testing.md) |
 | 2026-10-16: updated Root and full diagnostics | Three environments passed 144 functional assertions, 6 deliberate Java/native crashes and 36 Root capture segments. Embedded validation passed another 100 cycles with full logs; script regressions increased to 19. | [Retest and raw-log verification](docs/root-crash-retest.md) |
 | 2026-10-17: 100-cycle mixed Root stress | Final three environments each passed 100 cycles, 96 smoke assertions and 33 capture segments, including stress scope changes/reboot recovery; 27 script regressions passed. An earlier native crash remains unresolved; the companion embedded run failed at cycle 10. | [Full results, failures and raw evidence](docs/root-stress-testing.md) |
+| 2026-10-18: single-DEX candidate and startup diagnosis | Embedded completed 100 additional cold starts, 100 mixed cycles, 40 smoke assertions and restoration. Construction/callback/installation matched for each of 235 PIDs. Combined and independent Root retests still failed; evidence gaps are explicit, and a repaired collector is being revalidated. 34 script regressions pass. | [Latest diagnosis, archive verification and limits](docs/startup-diagnosis.md) |
 
 Counts refer to test or assertion executions in their respective runs. Stages reuse scenarios; adding these counts does not give a count of distinct tests. Real-hook device evidence comes from fixed API 35, google_apis, x86_64 cloud-emulator combinations.
 
 The validated Root combination is Magisk v30.7 with Vector v2.2 / 3080 Release. The updated CI passed in three fresh environments on 2026-10-16. Every result applies only to its recorded commit, not to other versions or devices.
 
 The bounded 2026-10-17 Root stress retest passed, but **the project is not all-green**: the first run had an unexpected ART native crash whose root cause remains open. The same-commit embedded route failed with Hook=false on cycle 10's ordinary page and did not complete 100 cycles. Later Root success does not repair or override either failure.
+
+The 2026-10-18 single-DEX candidate had no callback omissions in one fully verified embedded retest. Historical failures remain unchanged; this does not establish a Root native-crash fix or stable-release readiness. Root defaults to the independent 100-cycle mixed suite. Extra startup diagnostics and the historical combined reproduction are separate selectable modes, not substitutes for mixed-cycle counts.
 
 **Not yet validated:** physical ARM devices, vendor ROMs, commercial advertising SDKs, NDK/direct-channel coverage, long-running stress behavior, manager-GUI usability, comparative performance, and legal review. Emulator results do not establish these outcomes.
 

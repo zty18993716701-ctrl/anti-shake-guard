@@ -2,6 +2,36 @@
 
 状态：**调查中，尚未证实修复**。只测试一次性 Android API 35 x86_64 模拟器；不测试真机或商业 App，不替换历史测试包。
 
+## 最新：单 DEX 候选复测（2026-10-18）
+
+候选源码 `b151e5b768bca7aaaae23a3cce684db788bd7f62` 的[嵌入式复测](https://github.com/zty18993716701-ctrl/anti-shake-guard/actions/runs/39089887806)通过：100 次额外冷启动、100 轮混合生命周期（五类各 20 轮）、40 项冒烟断言、45 项 Java 测试和三项缺少模块负对照全部通过，卸载恢复也完成。完整 36 文件工件的 SHA-256 / ZIP CRC、九项诊断输出字节数及 START/END 覆盖标记已独立核验；完整 logcat 为 43,914,837 字节，未检出功能窗口内的目标应用崩溃/ANR。
+
+实际模块只有 `classes.dex`。235 个进程各有且仅有一次模块构造、保护组包回调和安装成功记录，没有按 PID 核对后的遗漏或重复；100 次启动记录未见 ForkJoin 工作线程。未加载模块的诊断负对照在同一 PID 中注入新鲜光线和运动，正确观察到 TARGET / navigated=true，原始失败仍保留。这支持单 DEX 候选缓解，但一次有界通过不能证明罕见问题彻底修复，临时诊断日志也尚未移除。
+
+[同源码 Root 三组运行](https://github.com/zty18993716701-ctrl/anti-shake-guard/actions/runs/39089919305)全部失败，不能并入 PASS：
+
+| 组 | 额外启动 | 混合完成 | 终止与证据 |
+| --- | --- | --- | --- |
+| 1 | 100 | 60 | QEMU 挂起警告后运行器收到关机信号；工作流全文保留，但没有执行工件上传，无法恢复完整设备诊断 |
+| 2 | 100 | 67 | 第 68 轮保护组 Launcher 恢复超时，随后模拟器传感器接口也超时；完整 ZIP 已下载，但末段采集不完整（27/28 完整） |
+| 3 | 100 | 60 | QEMU 挂起警告后运行器收到关机信号；工作流全文保留，没有设备诊断工件 |
+
+第 2 组 ZIP 完整性通过，不代表其运行时采集完整。第 1、3 组缺失的原始设备诊断不能从工作流文本重建，也不能把“没有崩溃工件”当作“没有崩溃”。没有把这些失败认定为首轮原生 SIGSEGV 的复现或消除。
+
+完整索引和哈希见 [single-dex-b151e5b-index.json](evidence/single-dex-b151e5b-index.json)，嵌入式独立核验见 [verification](evidence/single-dex-embedded-verification.json)。完整系统日志只留在隔离测试工件和本地归档，不混入测试者安装包。
+
+环境对照：源码 `bed9d88e188a7db4e3a457d5ea19dc7b501a33c1` 的[独立混合复测](https://github.com/zty18993716701-ctrl/anti-shake-guard/actions/runs/39091836244)。模块代码不变；额外 100 次启动诊断不再前置叠加到混合验收。同一环境内的原始 100 轮、96 项冒烟、作用域切换、四次实际重启、Java/原生崩溃校准及全部 33 段完整采集仍为必需。增加只读主机内存/磁盘/进程资源快照，不增加超时或自动重试。命令行保留 `--suite combined` 历史组合复现入口和 `--suite startup` 独立启动入口。
+
+该环境对照三组全部 FAIL，均未进入混合循环，因此尚不能检验累积负载假设。第 1 组在框架安装后、测试 APK 安装前发生 ADB 断连，采集 0/1 完整；当时主机约 11GB 可用内存、81GB 可用磁盘，不支持“初始主机内存耗尽”的解释。第 2 组 CLI 在 90 秒内未就绪，2/2 段采集完整但操作失败，测试 APK 未安装。第 3 组完成两项崩溃校准和 32 项冒烟断言，但移除作用域后的实时流缺 END 标记，9/10 段采集完整。三份工件及工作流全文已下载，SHA-256 和 CRC 全部核验，具体哈希见索引。
+
+### 已定位并修正的采集器问题
+
+第 3 组原始实时流 49,297 条记录，快照 49,341 条；快照逐字节、按序包含实时流全部记录，并补含 START 和 END。没有据此把历史运行改判 PASS。先用子进程边界回归复现该失败，再修正今后的采集器：仅当实时流缺 END、快照成功且含完整标记、并且逐字节保留全部实时流记录的顺序时，记录 `coverage_file=logcat-snapshot.txt`，同时保存原实时流和 `stream_warning`。不能丢弃、改写或筛选原始日志；其余九项诊断检查不变。
+
+新增负对照要求：有标记但丢了实时流记录的快照不能补救；仅出现在快照里的目标崩溃也必须失败；两份日志都缺标记仍失败。本地 34 项脚本回归通过。这修复的是采集判定，不是插件原生崩溃或框架 CLI 初始化本身。
+
+实际复测：[嵌入式采集器验证 39133422677](https://github.com/zty18993716701-ctrl/anti-shake-guard/actions/runs/39133422677)，源码 `10347d011d83f0e8523c9203b4f0a06c5111409a`；[三组 Root 39133520265](https://github.com/zty18993716701-ctrl/anti-shake-guard/actions/runs/39133520265)，源码 `8a2dce8ff65abd045f5b6ee9041d5c2d8618e1b3`。Root 仅在就绪检查已经失败之后，对固定框架进程采集进程列表、原生和 Java 线程转储，最终仍抛出原始失败，不重启框架、不把失败变成通过。两项运行的最终结果待核验。
+
 ## 固定失败样本
 
 - 原生故障：[首轮 Root 运行](https://github.com/zty18993716701-ctrl/anti-shake-guard/actions/runs/39020188810)，trial 3 第 63 轮，保护组 PID 7020 / TID 7024，SIGSEGV。完整 tombstone 显示工作线程的 ART 信号处理 / 线程创建栈；主线程当时处于 `ActivityThread.attach` 的 Binder 调用。不能仅凭最后一条模块加载日志，把模块或框架认定为根因。
@@ -72,7 +102,17 @@ Root 新增一个独立启动采集段，完整成功时预期 34 段，而非�
 
 ## English
 
-Both failures remain open. The pinned experiment adds 100 ordinary-page cold starts before the unchanged mixed lifecycle suite. On a page assertion failure, it preserves the original state/PID, opens the real sensor probe without force-stopping the process, injects fresh light and motion, and requires PID continuity before classifying behavior. Missing/dead/replaced processes or incomplete evidence are inconclusive. The original assertion still fails regardless of diagnosis.
+Latest single-DEX candidate: embedded run `39089887806` passed 100 extra cold starts, all 100 mixed cycles, 40 smoke assertions, 45 Java tests, three missing-module negatives and baseline restoration. Its 36-file archive passed SHA-256/CRC and full capture-manifest checks. Each of 235 PIDs has exactly one module construction, package callback and successful installation; no ForkJoin worker appeared in the 100 recorded startup thread lists. This is bounded evidence for a mitigation, not proof of a root-cause repair or a clean release.
+
+The same-source Root run `39089919305` failed in all three environments. Trials 1 and 3 completed 100 cold starts and 60 mixed cycles before QEMU hangs and runner shutdown; no diagnostic artifacts were uploaded. Trial 2 completed 100 starts and 67 mixed cycles, then timed out restoring the protected app, lost emulator transport and retained only 27/28 complete capture segments. All available workflow logs and trial 2's CRC/SHA-verified ZIP are preserved. Missing device logs cannot be reconstructed or treated as absence of a crash.
+
+Run `39091836244` isolated the original 100-cycle Root acceptance from the extra startup diagnostic, but all three jobs failed before mixed cycles: initial ADB loss (0/1 complete captures), CLI readiness failure (2/2 complete) and an END marker absent from the live stream after 32 successful smoke assertions (9/10 complete). All three archives and workflow logs were downloaded and SHA-256/CRC checked. The initial host had about 11GB available RAM and 81GB free disk; accumulated-load causality remains untested.
+
+The third failure exposed a collector defect: its 49,341-record snapshot contains all 49,297 raw stream records byte-for-byte in order and both markers. A red-then-green regression now permits this strictly verified coverage source while retaining the unchanged raw stream and warning. Missing/reordered records, missing markers or a target crash found only in the snapshot still fail. All nine diagnostic-command checks remain mandatory; 34 script regressions pass. Historical failures remain FAIL.
+
+Collector validation runs are embedded `39133422677` at `10347d0` and three-environment Root `39133520265` at `8a2dce8`. The Root addition collects native/Java framework stacks only after the original readiness deadline has failed, without restarting the framework or converting failure to success. Results are pending. The original 100 mixed cycles, 96 smoke assertions, four reboots, scope boundaries, calibration and 33 complete capture segments remain required in stress mode.
+
+Historical diagnostic experiment: both causes remained open. The pinned experiment added 100 ordinary-page cold starts before the unchanged mixed lifecycle suite. On a page assertion failure, it preserves the original state/PID, opens the real sensor probe without force-stopping the process, injects fresh light and motion, and requires PID continuity before classifying behavior. Missing/dead/replaced processes or incomplete evidence are inconclusive. The original assertion still fails regardless of diagnosis.
 
 Thirty-one local script tests pass; Android results must be read separately from the linked runs and full artifacts. Temporary module-construction/package-entry logs are tagged `[DEBUG-startup]` and must be removed after diagnosis. Root now expects 34 capture segments on a complete successful run. Fixed upstream versions, scope controls, crash calibration, negative controls and original evidence are preserved. No physical-device testing or stable release is performed.
 

@@ -1,0 +1,32 @@
+{
+  "file": "single-dex-embedded.zip",
+  "sha256": "17d1c7679b5a1ade03590468430206f75803885b8293600c1c325a0add8a4ec4",
+  "crc": "PASS",
+  "files": 36,
+  "segments": [
+    {
+      "label": "embedded-suite",
+      "complete": true,
+      "logBytes": 43914837,
+      "bootId": "bd2e1a4f-6f28-4bf1-b42b-20c08487b477"
+    }
+  ],
+  "startup": {
+    "cycles": 100,
+    "result": "PASS",
+    "forkJoinWorkerCycles": []
+  },
+  "cycles": 100,
+  "cycleCounts": {
+    "cold": 20,
+    "warm": 20,
+    "background": 20,
+    "ad": 20,
+    "normal": 20
+  },
+  "smokeAssertions": 40,
+  "javaTests": 45,
+  "missingHookNegatives": "PASS",
+  "sameProcessDiagnosticNegative": "PASS"
+}
+
