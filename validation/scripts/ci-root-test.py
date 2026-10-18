@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Root/Vector integration on a disposable CI emulator with unmodified fixture APKs."""
+import argparse
 import json
 import os
 from pathlib import Path
@@ -17,6 +18,17 @@ PROTECTED = "dev.antishake.fixture.protectedapp"
 CLI = "/data/adb/modules/zygisk_vector/cli"
 EVIDENCE = Path("build/root-evidence")
 EVIDENCE.mkdir(parents=True, exist_ok=True)
+parser = argparse.ArgumentParser(description=__doc__)
+parser.add_argument("--suite", choices=("combined", "stress", "startup"), default="combined")
+args = parser.parse_args()
+
+
+def host_status(label):
+    try:
+        subprocess.run(["bash", "scripts/ci-host-status.sh", label, str(EVIDENCE)], check=True, timeout=15)
+    except subprocess.SubprocessError as error:
+        # Optional host measurements must not replace the primary emulator failure.
+        print("Host resource snapshot failed: " + str(error), flush=True)
 
 
 def adb(*args, timeout=45):
@@ -134,6 +146,7 @@ def stress():
     boundaries = []
     for start in (1, 21, 41, 61, 81):
         label = f"stress-{start:03d}-{start + 19:03d}"
+        host_status(label + "-before")
         with Evidence(EVIDENCE, label, SERIAL):
             result = capture(["python3", "-u", "scripts/emulator-lifecycle.py", "--serial", SERIAL,
                               "--start-cycle", str(start), "--cycles", "20"],
@@ -141,6 +154,7 @@ def stress():
             print(result.stdout, flush=True)
             assert result.returncode == 0, f"{label} failed: {result.returncode}"
             rows.extend(check_chunk([json.loads(line) for line in result.stdout.splitlines()], start))
+        host_status(label + "-after")
         end = start + 19
         if end in (20, 60):
             label = f"stress-after-{end}"
@@ -167,6 +181,7 @@ def stress():
 
 
 try:
+    host_status("initial")
     root()
     save("display-configuration.json", lock_rotation(SERIAL))
     save("environment.json", {"fingerprint": adb("shell", "getprop", "ro.build.fingerprint"),
@@ -201,20 +216,24 @@ try:
     cli("scope", "set", MODULE, PROTECTED + "/0")
     configuration("scope-restored", True, True)
     smoke("root-scope-restored", "hooked")
-    with Evidence(EVIDENCE, "startup-reproduction", SERIAL):
-        result = capture(["python3", "-u", "scripts/emulator-lifecycle.py", "--serial", SERIAL,
-                          "--startup-only"], EVIDENCE / "startup-reproduction.jsonl", 900)
-        print(result.stdout, flush=True)
-        assert result.returncode == 0, "Focused startup reproduction failed"
-    stress()
+    if args.suite != "stress":
+        with Evidence(EVIDENCE, "startup-reproduction", SERIAL):
+            result = capture(["python3", "-u", "scripts/emulator-lifecycle.py", "--serial", SERIAL,
+                              "--startup-only"], EVIDENCE / "startup-reproduction.jsonl", 900)
+            print(result.stdout, flush=True)
+            assert result.returncode == 0, "Focused startup reproduction failed"
+    if args.suite != "startup":
+        stress()
     result = cli("modules", "disable", MODULE)
     assert result["Failed"] == [] and MODULE in result["Disabled"], result
     configuration("disabled", True, False)
     smoke("root-disabled", "baseline")
     reports = [json.loads(path.read_text()) for path in EVIDENCE.glob("*/capture.json")]
-    assert len(reports) == 34 and all(report["complete"] and report["operation_succeeded"] for report in reports), reports
+    expected_segments = {"combined": 34, "stress": 33, "startup": 13}[args.suite]
+    assert len(reports) == expected_segments and all(report["complete"] and report["operation_succeeded"] for report in reports), reports
     save("capture-summary.json", {"result": "PASS", "segments": len(reports), "calibrations": ["java", "native"]})
     print(json.dumps({"rootEvidence": "PASS", "segments": len(reports)}), flush=True)
 finally:
+    host_status("final")
     capture(["adb", "-s", SERIAL, "logcat", "-b", "all", "-d", "-v", "threadtime"],
             EVIDENCE / "framework-logcat.txt", 30, best_effort=True)

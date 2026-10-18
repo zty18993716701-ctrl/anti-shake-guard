@@ -1,10 +1,16 @@
 name: Root Vector validation (disposable emulator only)
 on:
   workflow_dispatch:
+    inputs:
+      suite:
+        description: 'Independent 100-cycle acceptance, startup diagnostic, or historical combined reproduction'
+        type: choice
+        options: [stress, startup, combined]
+        default: stress
 permissions:
   contents: read
 concurrency:
-  group: root-validation-${{ github.ref }}
+  group: root-validation-${{ github.ref }}-${{ inputs.suite }}
   cancel-in-progress: false
 jobs:
   root-vector:
@@ -54,7 +60,7 @@ jobs:
           ram-size: 2048M
           emulator-boot-timeout: 300
           script: bash validation/scripts/ci-root-prepare.sh
-      - name: Root 100-cycle lifecycle stress, scope switches, reboots and crash evidence
+      - name: Root selected suite, scope switches, reboots and crash evidence
         uses: ReactiveCircus/android-emulator-runner@a421e43855164a8197daf9d8d40fe71c6996bb0d
         with:
           api-level: 35
@@ -65,7 +71,7 @@ jobs:
           ram-size: 2048M
           emulator-boot-timeout: 300
           emulator-options: -no-window -no-audio -no-boot-anim -no-snapshot -gpu swiftshader_indirect -feature -SystemAsRoot -ramdisk ${{ github.workspace }}/validation/build/root/ramdisk.img
-          script: python3 validation/scripts/ci-root-test.py
+          script: python3 validation/scripts/ci-root-test.py --suite ${{ inputs.suite }}
       - name: Keep evidence only, no framework APKs or disk images
         if: always()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
