@@ -1,10 +1,36 @@
 import subprocess
 import unittest
 
+import startup_diagnostic
 from startup_diagnostic import diagnose
 
 
 class StartupDiagnosticTest(unittest.TestCase):
+    def test_timeout_triage_keeps_crash_and_exit_details_without_relaunching(self):
+        replies = {("shell", "pidof", "dev.antishake.fixture.protectedapp"): "202",
+                   ("shell", "dumpsys", "activity", "exit-info", "dev.antishake.fixture.protectedapp"): "Native crash, PID 101",
+                   ("logcat", "-b", "crash", "-d", "-v", "threadtime"): "SIGSEGV, backtrace: original stack"}
+
+        def adb(*args):
+            return replies[args]  # Any relaunch, deletion or motion injection fails this boundary.
+
+        result = startup_diagnostic.collect_timeout(adb, "dev.antishake.fixture.protectedapp")
+        self.assertEqual(result["pid"], "202")
+        self.assertEqual(result["exitInfo"], "Native crash, PID 101")
+        self.assertEqual(result["crashLog"], "SIGSEGV, backtrace: original stack")
+
+    def test_unavailable_triage_keeps_errors_and_does_not_replace_the_primary_failure(self):
+        def adb(*args):
+            raise subprocess.TimeoutExpired(args, 3)
+
+        with self.assertRaisesRegex(AssertionError, "original startup timeout"):
+            try:
+                raise AssertionError("original startup timeout")
+            finally:
+                result = startup_diagnostic.collect_timeout(adb, "dev.antishake.fixture.protectedapp")
+        self.assertEqual(set(result), {"pidError", "exitInfoError", "crashLogError"})
+        self.assertTrue(all("TimeoutExpired" in message for message in result.values()))
+
     def run_probe(self, protected=False, restarted=False, dead=False, stale=False):
         calls = []
         phase = {"opened": False, "motion": False}

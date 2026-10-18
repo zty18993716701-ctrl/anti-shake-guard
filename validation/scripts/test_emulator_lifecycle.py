@@ -1,5 +1,11 @@
 import importlib.util
+import json
+import os
 from pathlib import Path
+import shutil
+import subprocess
+import sys
+import tempfile
 import unittest
 
 
@@ -9,6 +15,25 @@ spec.loader.exec_module(lifecycle)
 
 
 class LifecycleTest(unittest.TestCase):
+    def test_empty_startup_state_reports_triage_before_the_original_failure(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder)
+            adb = root / "adb"
+            shutil.copy(Path(__file__).with_name("fixtures") / "fake-adb.py", adb)
+            adb.write_text("#!" + sys.executable + "\n" + adb.read_text().split("\n", 1)[1])
+            adb.chmod(0o755)
+            result = subprocess.run([sys.executable, str(Path(__file__).with_name("emulator-lifecycle.py")),
+                                     "--serial", "emulator-5554", "--start-cycle", "96", "--cycles", "1"],
+                                    env=dict(os.environ, PATH=str(root) + os.pathsep + os.environ["PATH"]),
+                                    capture_output=True, text=True, timeout=15)
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn("Timed out: dev.antishake.fixture.control: {}", result.stderr)
+            rows = [json.loads(line) for line in result.stdout.splitlines()]
+            self.assertEqual(len(rows), 1)
+            self.assertEqual(rows[0]["state"], {})
+            self.assertEqual(rows[0]["diagnostic"]["exitInfo"], "diagnostic snapshot")
+            self.assertIn("crashLog", rows[0]["diagnostic"])
+
     def test_five_chunks_are_exactly_the_original_100_cycle_plan(self):
         whole = lifecycle.cycle_plan(1, 100)
         chunks = [row for start in (1, 21, 41, 61, 81)

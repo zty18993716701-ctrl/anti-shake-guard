@@ -1,0 +1,120 @@
+{
+  "date": "2026-10-18",
+  "scope": "Disposable API 35 x86_64 emulators only; no real-device or commercial-app validation",
+  "root": {
+    "runId": 39133520265,
+    "source": "8a2dce8ff65abd045f5b6ee9041d5c2d8618e1b3",
+    "suite": "stress",
+    "result": "PASS",
+    "trials": [
+      {
+        "trial": 1,
+        "jobId": 117693323507,
+        "artifactId": 12138984472,
+        "zipBytes": 69173646,
+        "sha256": "6c577708b2ebbe128c999cf1cb311216abf8bcd2ce3dabb85b4856c1b7ee2001",
+        "zipCrc": "PASS",
+        "independentVerification": "PASS",
+        "files": 475,
+        "cycles": 100,
+        "counts": {
+          "cold": 20,
+          "warm": 20,
+          "background": 20,
+          "ad": 20,
+          "normal": 20
+        },
+        "smokeAssertions": 96,
+        "reboots": 4,
+        "completeSegments": 33,
+        "requiredCommandsPerSegment": 9,
+        "snapshotRecoverySegments": 0,
+        "javaAndNativeCalibrations": "PASS",
+        "localArchive": "coverage-root-1.zip",
+        "localVerification": "coverage-root-1-verification.json"
+      },
+      {
+        "trial": 2,
+        "jobId": 117693323350,
+        "artifactId": 12139532732,
+        "zipBytes": 78415139,
+        "sha256": "3a005ec4da7361b93f7b7f68e0035e0fbbdb817ebc4d15f8bd33ab3eb1a81ef4",
+        "zipCrc": "PASS",
+        "independentVerification": "PASS",
+        "files": 475,
+        "cycles": 100,
+        "counts": {
+          "cold": 20,
+          "warm": 20,
+          "background": 20,
+          "ad": 20,
+          "normal": 20
+        },
+        "smokeAssertions": 96,
+        "reboots": 4,
+        "completeSegments": 33,
+        "requiredCommandsPerSegment": 9,
+        "snapshotRecoverySegments": 0,
+        "javaAndNativeCalibrations": "PASS",
+        "localArchive": "coverage-root-2.zip",
+        "localVerification": "coverage-root-2-verification.json"
+      },
+      {
+        "trial": 3,
+        "jobId": 117693323602,
+        "artifactId": 12139014427,
+        "zipBytes": 69383044,
+        "sha256": "e0bc4f71d0ddd5fdc6bd96714be561be7d948526d78f7c68054f74d00bc7c45a",
+        "zipCrc": "PASS",
+        "independentVerification": "PASS",
+        "files": 475,
+        "cycles": 100,
+        "counts": {
+          "cold": 20,
+          "warm": 20,
+          "background": 20,
+          "ad": 20,
+          "normal": 20
+        },
+        "smokeAssertions": 96,
+        "reboots": 4,
+        "completeSegments": 33,
+        "requiredCommandsPerSegment": 9,
+        "snapshotRecoverySegments": 0,
+        "javaAndNativeCalibrations": "PASS",
+        "localArchive": "coverage-root-3.zip",
+        "localVerification": "coverage-root-3-verification.json"
+      }
+    ]
+  },
+  "embedded": {
+    "runId": 39133422677,
+    "jobId": 117693036821,
+    "source": "10347d011d83f0e8523c9203b4f0a06c5111409a",
+    "result": "FAIL",
+    "startupCycles": 100,
+    "startupForkJoinWorkerCycles": 0,
+    "mixedCyclesCompleted": 95,
+    "failedCycle": 96,
+    "failedOperation": "Protected fixture second cold launch: no probe state within original eight-second deadline",
+    "latestState": {},
+    "runnerShutdown": "2026-10-18T14:15:24.5376294Z",
+    "assertionTime": "2026-10-18T14:14:54.9747582Z",
+    "artifactCount": 0,
+    "fullDeviceLogs": "UNAVAILABLE: runner stopped before upload; absence is not absence of a crash",
+    "availableLog": "coverage-embedded-workflow.txt",
+    "cause": "UNCONFIRMED: application startup crash, app/system hang, or emulator/host failure not distinguishable from available evidence"
+  },
+  "followup": {
+    "change": "Read-only bounded crash buffer, ApplicationExitInfo and PID triage printed at the original state timeout before full capture cleanup",
+    "scriptTests": 37,
+    "androidRetest": "PENDING",
+    "productOrFrameworkLogicChanged": false
+  },
+  "limits": [
+    "Historical FAIL results are unchanged",
+    "Root bounded PASS does not prove the original rare native race fixed",
+    "Embedded cannot be accepted without complete runtime evidence",
+    "Temporary DEBUG-startup instrumentation retained; not a clean stable release"
+  ]
+}

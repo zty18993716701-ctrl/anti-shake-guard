@@ -2,6 +2,19 @@
 import time
 
 
+def collect_timeout(adb, package):
+    """Read-only triage; the caller bounds transport time and retains the original timeout."""
+    result = {}
+    for name, command in (("crashLog", ("logcat", "-b", "crash", "-d", "-v", "threadtime")),
+                          ("exitInfo", ("shell", "dumpsys", "activity", "exit-info", package)),
+                          ("pid", ("shell", "pidof", package))):
+        try:
+            result[name] = adb(*command)
+        except Exception as error:
+            result[name + "Error"] = type(error).__name__ + ": " + str(error)
+    return result
+
+
 def diagnose(adb, package, expected_pid, cycle, pause=time.sleep):
     result = {"outcome": "inconclusive", "expectedPid": expected_pid}
 

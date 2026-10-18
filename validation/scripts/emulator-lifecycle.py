@@ -5,7 +5,7 @@ import json
 import subprocess
 import time
 from emulator_adb import lock_rotation
-from startup_diagnostic import diagnose
+from startup_diagnostic import collect_timeout, diagnose
 
 
 PROTECTED = "dev.antishake.fixture.protectedapp"
@@ -70,8 +70,8 @@ def main():
     # Motion injection must not add unplanned system-driven Activity recreation.
     lock_rotation(args.serial)
 
-    def adb(*command):
-        return subprocess.check_output(["adb", "-s", args.serial, *command], text=True, timeout=25).strip()
+    def adb(*command, timeout=25):
+        return subprocess.check_output(["adb", "-s", args.serial, *command], text=True, timeout=timeout).strip()
 
     def sensor(name, value):
         result = adb("emu", "sensor", "set", name, str(value))
@@ -92,6 +92,8 @@ def main():
             except subprocess.CalledProcessError:
                 pass
             time.sleep(0.15)
+        print(json.dumps({"diagnosticTag": "[DEBUG-startup]", "startupTimeout": package, "state": latest,
+                          "diagnostic": collect_timeout(lambda *command: adb(*command, timeout=3), package)}), flush=True)
         raise AssertionError(f"Timed out: {package}: {latest}")
 
     def launch(package, scenario, cold=True):
