@@ -29,13 +29,13 @@ for iteration in 1 2 3; do
     | tee "build/device-evidence/lspatch-hooked-$iteration.jsonl"
 done
 
-# Focused reproduction before the unchanged mixed lifecycle acceptance.
-timeout 900s python3 -u scripts/emulator-lifecycle.py --serial emulator-5554 --startup-only 2>&1 \
-  | tee build/device-evidence/lspatch-startup.jsonl
-
 # Same loaded module, repeated real lifecycle transitions; bounded to 15 minutes.
 timeout 900s python3 -u scripts/emulator-lifecycle.py --serial emulator-5554 2>&1 \
   | tee build/device-evidence/lspatch-lifecycle.jsonl
+
+# Order-only isolation: retain all 100 extra starts, after the original 100 mixed cycles.
+timeout 900s python3 -u scripts/emulator-lifecycle.py --serial emulator-5554 --startup-only 2>&1 \
+  | tee build/device-evidence/lspatch-startup.jsonl
 
 # Prove removal restores motion/navigation, not a permanently disabled fixture.
 adb -s emulator-5554 uninstall dev.antishake.fixture.protectedapp
