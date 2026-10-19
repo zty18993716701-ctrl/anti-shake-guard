@@ -2,13 +2,25 @@
 
 状态：**调查中，尚未证实修复**。只测试一次性 Android API 35 x86_64 模拟器；不测试真机或商业 App，不替换历史测试包。
 
-## 最新：采集修复后三组 Root 通过，嵌入式仍失败（2026-10-18）
+## 最新：嵌入式完整失败日志确认模拟器停顿（2026-10-19）
+
+[取证复测 39138791733](https://github.com/zty18993716701-ctrl/anti-shake-guard/actions/runs/39138791733)，源码 `ed1fef2fc87a18fe1f1e41b60eaa7b574cc0992a`，结果 **FAIL**。已下载完整工作流和 35 文件设备归档；SHA-256 与 GitHub 摘要相同、ZIP CRC 通过。完整实时 logcat 为 39,475,137 字节，START/END 标记、九项诊断的退出码和字节数均独立核验；采集 `complete=true`，操作 `operation_succeeded=false`，不能因日志完整就判通过。45 项 Java 测试、32 项冒烟、三项缺少模块负对照、100 次额外启动及混合第 1–80 轮通过，恢复验收未执行。
+
+本次不是第 96 轮保护组空状态，而是第 81 轮**未受保护对照组**第二次冷启动的 `am start -W` 超过原 25 秒。内核明确记录 `BUG: workqueue lockup`、通信工作队列卡住 66 秒，工作栈为 `virtio_transport_send_pkt_work` / `iowrite16`；系统主线程同时出现约 65.8 秒投递延迟，QEMU 报 CPU 线程挂起，启动请求随后才被处理。这是本次模拟器层停顿的直接证据，但尚未证明完整底层根因。崩溃缓冲为空，完整覆盖窗口未检出目标应用崩溃/ANR，退出历史最近记录是测试安排的 FORCE STOP。211 个保护组进程的构造、包回调及安装记录各一次，无遗漏；实际模块 DEX、Manifest、resources 与首次单 DEX 候选相同。以上不能补回上一轮缺失的日志，也不能认定上一轮第 96 轮已定位或修复。
+
+发现并补齐另一个取证边界：此前即时取证只在“等待状态”失败时触发，启动命令自身超时会绕过它。新增实际 CLI + 假 ADB 传输停顿测试先失败，补丁后全部 38 项脚本测试通过；现在保留超时命令的部分输出、原异常及只读崩溃/退出/PID 诊断，不重试、不重启、不延长判据。它是取证修复，不是应用启动故障的产品修复。
+
+单变量环境对照：[39188889405](https://github.com/zty18993716701-ctrl/anti-shake-guard/actions/runs/39188889405)，源码 `9ebff183a9e0861f43f50999de25ddc7de425da7`。仅在嵌入式 CI 设置 `ANDROID_EMULATOR_FEATURES=-VirtioVsockPipe`，测试切回旧管道能否避开此次通信停顿。官方配置将该功能描述为 goldfish pipe 的替代传输（[固定 AOSP 配置](https://android.googlesource.com/platform/external/qemu/+/ba29194f97e72ffe770bd56e4e5c5c620598004b/android/data/advancedFeatures.ini)）；本地官方模拟器 `-help-feature` 也确认开关与环境变量语法。插件/靶场源码、固定框架、100 次启动、100 轮混合及原有判据均不变，另保存初始系统属性和内核启动参数。结果待核验，不能据此称为已验证的缓解。
+
+精确哈希与结果见 [timeout-triage-ed1fef2-index.json](evidence/timeout-triage-ed1fef2-index.json)。旧失败不覆盖，不做真机测试，不发布稳定版。
+
+## 采集修复后三组 Root 通过，嵌入式仍失败（2026-10-18）
 
 [Root 39133520265](https://github.com/zty18993716701-ctrl/anti-shake-guard/actions/runs/39133520265)，源码 `8a2dce8ff65abd045f5b6ee9041d5c2d8618e1b3`，三组完整 ZIP 和工作流全文均已下载。每份 ZIP 475 文件，SHA-256 与 GitHub 工件摘要一致，CRC 和独立行为/采集校验全部通过：每组 100 轮混合（五类各 20）、96 项冒烟、20/60 轮作用域切换、40/80 轮重启恢复、共四次真实重启、Java/原生校准及 33 段完整采集。三组共 300 轮、288 项断言、99 段完整采集；功能窗口未检出目标应用崩溃/ANR。所有段直接使用完整实时流，本轮没有触发快照补全路径；其负对照仍由脚本回归覆盖。三组原始实时 logcat 分别约 231.34、256.06、228.67 MB。
 
 [嵌入式 39133422677](https://github.com/zty18993716701-ctrl/anti-shake-guard/actions/runs/39133422677)，源码 `10347d011d83f0e8523c9203b4f0a06c5111409a`，**FAIL**：工作流记录 100 次额外启动通过、线程列表无 ForkJoin 工作线程，以及混合第 1–95 轮通过。第 96 轮第二次冷启动保护组时，原有 8 秒内未生成 `probe.properties`，最新状态 `{}`。14:14:54 UTC 抛出原始断言，14:15:24 运行器收到关机信号，未执行设备工件上传；可用工作流全文已保存，但完整设备日志无法恢复，不能排除原生崩溃，也不能将其归为已证明的框架或宿主机故障。没有观察到该失败进程的 Hook=false 状态。
 
-后续只补取证、不改插件或框架：状态等待失败时，在完整采集清理前，立即把只读崩溃缓冲、应用退出历史和 PID 输出到工作流，每条诊断传输最多 3 秒；原始 8 秒判据、失败状态、传感器/页面/作用域规则均不变，不重启应用、不注入诊断运动、不重跑至通过。实际 CLI 的空状态超时用例已先失败再通过，所有 37 项脚本测试通过；这是诊断通道回归，不是 Android 故障已修复。新增 [Android 复测 39138791733](https://github.com/zty18993716701-ctrl/anti-shake-guard/actions/runs/39138791733)，源码 `ed1fef2fc87a18fe1f1e41b60eaa7b574cc0992a`，待核验。
+后续只补取证、不改插件或框架：状态等待失败时，在完整采集清理前，立即把只读崩溃缓冲、应用退出历史和 PID 输出到工作流，每条诊断传输最多 3 秒；原始 8 秒判据、失败状态、传感器/页面/作用域规则均不变，不重启应用、不注入诊断运动、不重跑至通过。实际 CLI 的空状态超时用例已先失败再通过，当时 37 项脚本测试通过；这是诊断通道回归，不是 Android 故障已修复。[Android 复测 39138791733](https://github.com/zty18993716701-ctrl/anti-shake-guard/actions/runs/39138791733)，源码 `ed1fef2fc87a18fe1f1e41b60eaa7b574cc0992a`，最终失败及完整取证见顶部。
 
 精确工件哈希与核验索引：[coverage-8a2dce8-index.json](evidence/coverage-8a2dce8-index.json)。旧失败保持 FAIL；临时 `[DEBUG-startup]` 日志尚未移除，不发布稳定版，不做真机测试。
 
@@ -112,11 +124,19 @@ Root 新增一个独立启动采集段，完整成功时预期 34 段，而非�
 
 ## English
 
+Latest, 2026-10-19: run `39138791733` at `ed1fef2` is FAIL, with its complete 35-file device archive and workflow text now downloaded. API SHA-256, CRC, START/END coverage and all nine required diagnostics independently passed; 39,475,137 raw logcat bytes are retained. Capture completeness does not change the failed operation. The run passed 45 Java tests, 32 smoke assertions, three missing-module negatives, 100 extra cold starts and mixed cycles 1–80. Cycle 81 timed out on the second cold launch of the **unprotected control**, not on the protected app's old cycle 96.
+
+The guest kernel reports a 66-second workqueue lockup in `virtio_transport_send_pkt_work` / `iowrite16`, alongside a 65.8-second system-main delivery delay and QEMU CPU-hang warnings. This directly establishes an emulator-level stall in this run, not the complete low-level cause. No unexpected target crash/ANR was detected in its fully covered window; the crash buffer is empty and the latest exit records are test-induced force stops. All 211 protected PIDs have exactly one constructor, package callback and successful hook installation. Module DEX, manifest and resources match the first single-DEX candidate. None of this reconstructs the old missing cycle-96 archive or establishes that failure's cause.
+
+The timeout diagnostic also missed failures inside the start command itself. A real CLI/fake-ADB transport-stall regression failed before the repair; all 38 script tests pass afterwards. Command partial output, the original exception and bounded read-only triage are retained, without retry or relaxed deadlines. This repairs an evidence boundary, not application startup behavior.
+
+The single-variable environment experiment is [run 39188889405](https://github.com/zty18993716701-ctrl/anti-shake-guard/actions/runs/39188889405) at `9ebff183a9e0861f43f50999de25ddc7de425da7`: embedded CI sets `ANDROID_EMULATOR_FEATURES=-VirtioVsockPipe`, leaving module/fixture source, pinned frameworks, 100 extra starts, 100 mixed cycles and original behavior/deadline assertions unchanged. [AOSP's fixed feature configuration](https://android.googlesource.com/platform/external/qemu/+/ba29194f97e72ffe770bd56e4e5c5c620598004b/android/data/advancedFeatures.ini) describes this as the replacement for goldfish pipe. Initial guest properties and kernel command line are also retained. Validation is pending, not a proven workaround. See [the exact failure index](evidence/timeout-triage-ed1fef2-index.json). No physical devices or stable release are included.
+
 Latest collector retest: all three Root jobs in run `39133520265` at `8a2dce8` passed independent archive verification, not just the workflow status. Each 475-file ZIP matches the API SHA-256 and passes CRC, 100 mixed cycles, 96 smoke assertions, scope switches after cycles 20/60, recovery after cycles 40/80, four actual reboots, both crash calibrations and 33 complete capture segments with all nine required diagnostics. All segments use the raw stream; snapshot recovery was not exercised in this Android run. Across the three trials, 300 cycles, 288 assertions and 99 complete segments passed, with no unexpected target crash/ANR detected in covered functional windows. This remains bounded mitigation evidence, not proof that the rare original native race is eliminated.
 
 Embedded run `39133422677` at `10347d0` is FAIL. Its available workflow text records 100 extra cold starts and mixed cycles 1–95 passing, then an empty state on the protected app's second cold launch in cycle 96. The original eight-second state deadline failed at 14:14:54 UTC; the runner received a shutdown signal at 14:15:24 before uploading any device archive. Full device logs are unavailable, so a crash cannot be excluded or attributed to the framework/host. No Hook=false state was observed for this failed launch. The complete available workflow text is retained; it cannot replace missing device evidence.
 
-The next diagnostic adds only bounded, read-only crash-buffer, exit-info and PID output at a state timeout before full cleanup. It neither restarts the app nor injects motion, changes the original deadline or turns failure into success. A real CLI/subprocess-boundary regression failed before this output was added and passes afterwards; all 37 script tests pass. [Android validation 39138791733](https://github.com/zty18993716701-ctrl/anti-shake-guard/actions/runs/39138791733) at `ed1fef2fc87a18fe1f1e41b60eaa7b574cc0992a` is pending. Exact archive metadata is in [coverage-8a2dce8-index.json](evidence/coverage-8a2dce8-index.json). Temporary debug logs remain; no stable release or physical-device testing is performed.
+The state-timeout diagnostic adds only bounded, read-only crash-buffer, exit-info and PID output before full cleanup. It neither restarts the app nor injects motion, changes the original deadline or turns failure into success. A real CLI/subprocess-boundary regression failed before this output was added and passes afterwards; 37 script tests passed at that source. [Android validation 39138791733](https://github.com/zty18993716701-ctrl/anti-shake-guard/actions/runs/39138791733) at `ed1fef2fc87a18fe1f1e41b60eaa7b574cc0992a` subsequently failed with complete evidence as recorded above. Exact archive metadata is in [coverage-8a2dce8-index.json](evidence/coverage-8a2dce8-index.json). Temporary debug logs remain; no stable release or physical-device testing is performed.
 
 Latest single-DEX candidate: embedded run `39089887806` passed 100 extra cold starts, all 100 mixed cycles, 40 smoke assertions, 45 Java tests, three missing-module negatives and baseline restoration. Its 36-file archive passed SHA-256/CRC and full capture-manifest checks. Each of 235 PIDs has exactly one module construction, package callback and successful installation; no ForkJoin worker appeared in the 100 recorded startup thread lists. This is bounded evidence for a mitigation, not proof of a root-cause repair or a clean release.
 

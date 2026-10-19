@@ -1,0 +1,71 @@
+{
+  "date": "2026-10-19",
+  "runId": 39138791733,
+  "jobId": 117708707463,
+  "source": "ed1fef2fc87a18fe1f1e41b60eaa7b574cc0992a",
+  "result": "FAIL",
+  "artifact": {
+    "id": 12140783910,
+    "bytes": 10935161,
+    "files": 35,
+    "sha256": "1e8ac61bd3e291dcac9b4e8ce58084d820c122472c61bf494eed150367fe86b3",
+    "crc": "PASS",
+    "independentVerification": "PASS",
+    "rawLogcatBytes": 39475137,
+    "completeSegments": 1,
+    "operationSucceeded": false,
+    "requiredDiagnostics": 9,
+    "allDiagnosticExitCodes": 0,
+    "coverageFile": "logcat-all.txt"
+  },
+  "completed": {
+    "additionalColdStarts": 100,
+    "mixedCycles": 80,
+    "smokeAssertions": 32,
+    "javaTests": 45,
+    "missingModuleNegatives": 3,
+    "forkJoinWorkerStartupCycles": 0,
+    "pidsWithOneConstructorCallbackAndInstallation": 211,
+    "pidMismatches": 0
+  },
+  "failure": {
+    "cycle": 81,
+    "package": "dev.antishake.fixture.control",
+    "phase": "second cold-launch am start -W",
+    "deadlineSeconds": 25,
+    "unexpectedTargetCrashOrAnrInCoveredWindow": false,
+    "crashBufferBytes": 0,
+    "guestKernel": "BUG: workqueue lockup - pool cpus=0 node=0 flags=0x0 nice=0 stuck for 66s!",
+    "stalledWorker": "virtio_transport_send_pkt_work",
+    "workerInstruction": "iowrite16",
+    "systemMainSlowDeliveryMs": 65768,
+    "originalCycle96Cause": "UNCONFIRMED: its device archive was never uploaded"
+  },
+  "module": {
+    "dexFiles": [
+      "classes.dex"
+    ],
+    "apkSha256": "ec953aa24fccf2cf9d027b29edf42174846858f94c4c4207d36c5a81f30f2dd0",
+    "classesDexSha256": "ed031135e9ed1999d774c2446e7495f768f66aab66e2e9c336bd1d01fafd7b38",
+    "classesManifestResourcesMatchFirstSingleDexCandidate": true
+  },
+  "nextExperiment": {
+    "source": "9ebff183a9e0861f43f50999de25ddc7de425da7",
+    "runId": 39188889405,
+    "result": "IN PROGRESS",
+    "behavioralVariable": "ANDROID_EMULATOR_FEATURES=-VirtioVsockPipe (embedded CI only)",
+    "hypothesis": "Legacy pipe avoids the observed emulator VSOCK stall; not a verified product fix",
+    "additionalDiagnostics": "Launch-command timeout emits partial original output and bounded read-only triage; initial guest properties and command line retained",
+    "scriptRegressions": 38,
+    "unchanged": [
+      "Module and fixture source",
+      "Pinned framework versions",
+      "100 additional cold starts",
+      "100 mixed lifecycle cycles",
+      "Sensor and page behavior assertions",
+      "Original 25s launch and 8s state deadlines"
+    ]
+  },
+  "physicalDevices": "NOT RUN",
+  "stableRelease": "NOT PUBLISHED"
+}
