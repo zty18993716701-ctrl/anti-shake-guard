@@ -77,10 +77,11 @@
   "rendererExperiment": {
     "source": "35d3b02f0adaa5818e6f79e510e40fbf8d307657",
     "runId": 39189752398,
-    "result": "IN PROGRESS",
+    "result": "FAIL; full 37-file archive SHA/CRC and runtime evidence verified; 100 starts and 80 mixed cycles passed; control launch timeout at cycle 81 with guest RCU stalls and 35s CPU soft lockup",
     "changeRelativeToOriginalEnvironment": "Only GPU option swiftshader_indirect -> swiftshader; original transport restored",
     "rationale": "Original emulator 37.2.12.0 used a mode deprecated since 36.4.9, with GL context errors and guest communication stall; test this interaction without claiming causality",
-    "scriptRegressions": 38
+    "scriptRegressions": 38,
+    "resultIndex": "renderer-35d3b02-index.json"
   },
   "physicalDevices": "NOT RUN",
   "stableRelease": "NOT PUBLISHED"

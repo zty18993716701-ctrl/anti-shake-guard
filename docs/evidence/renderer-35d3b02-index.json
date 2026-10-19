@@ -1,0 +1,73 @@
+{
+  "date": "2026-10-20",
+  "runId": 39189752398,
+  "jobId": 117859743152,
+  "source": "35d3b02f0adaa5818e6f79e510e40fbf8d307657",
+  "result": "FAIL",
+  "experiment": "Only swiftshader_indirect -> swiftshader relative to the original emulator environment; original transport restored",
+  "artifact": {
+    "id": 12159694747,
+    "bytes": 10843978,
+    "files": 37,
+    "sha256": "7fcb22f37fe26b3d6d62de30636b756d192da61292d7326fc7a0cbe1003c136d",
+    "crc": "PASS",
+    "independentVerification": "PASS",
+    "rawLogcatBytes": 38965545,
+    "snapshotBytes": 31975262,
+    "completeSegments": 1,
+    "operationSucceeded": false,
+    "requiredDiagnostics": 9,
+    "allDiagnosticExitCodes": 0,
+    "coverageFile": "logcat-all.txt"
+  },
+  "completed": {
+    "scriptTests": 38,
+    "javaTests": 45,
+    "smokeAssertions": 32,
+    "missingModuleNegatives": 3,
+    "additionalColdStarts": 100,
+    "mixedCycles": 80,
+    "forkJoinWorkerStartupCycles": 0,
+    "pidsWithOneConstructorCallbackAndInstallation": 211,
+    "pidMismatches": 0,
+    "restoration": "NOT RUN"
+  },
+  "failure": {
+    "cycle": 81,
+    "kind": "cold",
+    "package": "dev.antishake.fixture.control",
+    "phase": "second cold-launch am start -W",
+    "deadlineSeconds": 25,
+    "partialStartingIntentPreserved": true,
+    "immediateCrashBufferBytes": 0,
+    "immediateExitInfo": "Latest exits were scheduled USER REQUESTED / FORCE STOP",
+    "immediatePid": "Read-only query exceeded its original 3 second diagnostic limit",
+    "guestKernel": [
+      "rcu_preempt detected stalls on CPUs/tasks",
+      "RenderThread sampled at goldfish_pipe_read_write+0x295/0x4f0",
+      "watchdog: BUG: soft lockup - CPU#1 stuck for 35s! [binder:406_3:461]",
+      "binder:406_3 sampled at goldfish_pipe_read_write+0x295/0x4f0"
+    ],
+    "unexpectedTargetCrashOrAnrInCoveredWindow": false,
+    "independentSnapshotTargetCrashOrAnrMatches": 0,
+    "disposition": "Renderer-only change did not prevent the startup timeout; lower-level cause remains unconfirmed",
+    "originalCycle96Cause": "UNCONFIRMED: original device archive was never uploaded"
+  },
+  "module": {
+    "dexFiles": [
+      "classes.dex"
+    ],
+    "apkSha256": "7c1828eda6322f6aa2327e462553c0d9f9543a28b69af67e42a01003c5163ef0",
+    "classesManifestResourcesMatchFirstSingleDexCandidate": true
+  },
+  "nextExperiment": {
+    "source": "3ce7b4569923a56ea162249966abe0f4b10e0591",
+    "change": "Move the existing 100 extra startup cycles after the original 100 mixed cycles; omit neither suite",
+    "prediction": "If prior startup load is necessary for the cycle-81 stall, mixed cycles should progress beyond 81; later startup failure would still fail the whole run",
+    "unchanged": "Module, fixture, frameworks, renderer, all assertions, deadlines, restoration and full evidence capture",
+    "status": "Dispatched; isolation experiment, not a verified fix",
+    "runId": 39282982075
+  },
+  "physicalDevices": "NOT RUN",
+  "stableRelease": "NOT PUBLISHED"
+}
