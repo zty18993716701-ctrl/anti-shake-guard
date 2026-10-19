@@ -15,6 +15,26 @@ spec.loader.exec_module(lifecycle)
 
 
 class LifecycleTest(unittest.TestCase):
+    def test_start_command_timeout_keeps_partial_output_and_immediate_triage(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder)
+            adb = root / "adb"
+            shutil.copy(Path(__file__).with_name("fixtures") / "fake-adb.py", adb)
+            adb.write_text("#!" + sys.executable + "\n" + adb.read_text().split("\n", 1)[1])
+            adb.chmod(0o755)
+            (root / "stall-am-start").touch()
+            result = subprocess.run([sys.executable, str(Path(__file__).with_name("emulator-lifecycle.py")),
+                                     "--serial", "emulator-5554", "--start-cycle", "96", "--cycles", "1"],
+                                    env=dict(os.environ, PATH=str(root) + os.pathsep + os.environ["PATH"]),
+                                    capture_output=True, text=True, timeout=35)
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn("timed out after 25 seconds", result.stderr)
+            rows = [json.loads(line) for line in result.stdout.splitlines()]
+            self.assertEqual(len(rows), 1)
+            self.assertEqual(rows[0]["phase"], "launch-command")
+            self.assertIn("Starting: transport stalled", rows[0]["partialOutput"])
+            self.assertIn("crashLog", rows[0]["diagnostic"])
+
     def test_empty_startup_state_reports_triage_before_the_original_failure(self):
         with tempfile.TemporaryDirectory() as folder:
             root = Path(folder)

@@ -103,9 +103,19 @@ def main():
         sensor("acceleration", "0:0:9.81")
         sensor("gyroscope", "0:0:0")
         # FLAG_ACTIVITY_NEW_TASK | FLAG_ACTIVITY_CLEAR_TASK, supported by am's -f.
-        adb("shell", "am", "start", "-W", "-f", "0x10008000",
-            "-a", "android.intent.action.MAIN", "-c", "android.intent.category.LAUNCHER",
-            "-n", package + "/dev.antishake.fixture.MainActivity", "--es", "case", scenario)
+        try:
+            adb("shell", "am", "start", "-W", "-f", "0x10008000",
+                "-a", "android.intent.action.MAIN", "-c", "android.intent.category.LAUNCHER",
+                "-n", package + "/dev.antishake.fixture.MainActivity", "--es", "case", scenario)
+        except (subprocess.TimeoutExpired, subprocess.CalledProcessError) as error:
+            partial = error.output or ""
+            if isinstance(partial, bytes):
+                partial = partial.decode(errors="replace")
+            print(json.dumps({"diagnosticTag": "[DEBUG-startup]", "startupTimeout": package,
+                              "phase": "launch-command", "cycle": cycle, "kind": kind,
+                              "error": str(error), "partialOutput": partial,
+                              "diagnostic": collect_timeout(lambda *command: adb(*command, timeout=3), package)}), flush=True)
+            raise
         return wait_for(package, lambda state: "screen" in state)
 
     counts = dict.fromkeys(("cold", "warm", "background", "ad", "normal"), 0)

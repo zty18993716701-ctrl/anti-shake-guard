@@ -36,6 +36,9 @@ elif args[:2] == ["shell", "log"]:
             or ((root / "lose-end").exists() and args[-1].endswith(":END"))):
         with log.open("a") as output:
             output.write(args[-1] + "\n")
+elif args[:3] == ["shell", "am", "start"] and (root / "stall-am-start").exists():
+    print("Starting: transport stalled before activity response", flush=True)
+    time.sleep(30)
 elif args and args[0] == "logcat":
     if "-d" in args:
         snapshot = log.read_text() if "all" in args else ""
