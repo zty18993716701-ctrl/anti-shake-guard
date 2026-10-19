@@ -52,7 +52,15 @@
   "nextExperiment": {
     "source": "9ebff183a9e0861f43f50999de25ddc7de425da7",
     "runId": 39188889405,
-    "result": "IN PROGRESS",
+    "result": "FAIL before application installation: ADB remained offline until the original boot deadline",
+    "artifactId": 12159626335,
+    "artifactBytes": 45196,
+    "artifactFiles": 12,
+    "artifactSha256": "ea54bef5a54c628d137821440f968a02495d2a62e07d5ab1a2f027b33b807d57",
+    "artifactCrc": "PASS",
+    "runtimeCaptures": 0,
+    "applicationCyclesExecuted": 0,
+    "disposition": "Rejected as a usable workaround; restore original transport",
     "behavioralVariable": "ANDROID_EMULATOR_FEATURES=-VirtioVsockPipe (embedded CI only)",
     "hypothesis": "Legacy pipe avoids the observed emulator VSOCK stall; not a verified product fix",
     "additionalDiagnostics": "Launch-command timeout emits partial original output and bounded read-only triage; initial guest properties and command line retained",
@@ -65,6 +73,14 @@
       "Sensor and page behavior assertions",
       "Original 25s launch and 8s state deadlines"
     ]
+  },
+  "rendererExperiment": {
+    "source": "35d3b02f0adaa5818e6f79e510e40fbf8d307657",
+    "runId": 39189752398,
+    "result": "IN PROGRESS",
+    "changeRelativeToOriginalEnvironment": "Only GPU option swiftshader_indirect -> swiftshader; original transport restored",
+    "rationale": "Original emulator 37.2.12.0 used a mode deprecated since 36.4.9, with GL context errors and guest communication stall; test this interaction without claiming causality",
+    "scriptRegressions": 38
   },
   "physicalDevices": "NOT RUN",
   "stableRelease": "NOT PUBLISHED"
