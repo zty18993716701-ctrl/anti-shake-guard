@@ -56,8 +56,6 @@ jobs:
           java-version: '21'
       - name: Baseline, embedded Xposed and restoration
         uses: ReactiveCircus/android-emulator-runner@a421e43855164a8197daf9d8d40fe71c6996bb0d # v2
-        env:
-          ANDROID_EMULATOR_FEATURES: -VirtioVsockPipe
         with:
           api-level: 35
           target: google_apis
@@ -66,6 +64,7 @@ jobs:
           emulator-port: 5554
           ram-size: 2048M
           emulator-boot-timeout: 300
+          emulator-options: -no-window -gpu swiftshader -no-snapshot -noaudio -no-boot-anim
           script: python3 validation/scripts/ci-embedded-test.py
       - name: Keep debug APKs and validation evidence
         if: always()
