@@ -9,6 +9,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.view.View;
 import java.lang.reflect.Field;
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import de.robv.android.xposed.IXposedHookLoadPackage;
@@ -51,15 +52,19 @@ public final class GuardModule implements IXposedHookLoadPackage {
         trackedState = "unavailable:" + failure.getClass().getSimpleName();
       }
       Object callbacks = XposedBridge.class.getDeclaredField("sLoadedPackageCallbacks").get(null);
-      Object[] registered = (Object[]) callbacks.getClass().getDeclaredMethod("getSnapshot").invoke(callbacks);
+      int registered = registeredCallbackCount(callbacks);
       XposedBridge.log("[DEBUG-startup] bootstrapState phase=" + phase
           + " loadedApk=" + System.identityHashCode(loadedApk)
           + " classLoaderReady=" + (readBootstrapField(loadedApk, "mClassLoader") != null)
           + " tracked=" + trackedState
-          + " registeredCallbacks=" + registered.length + " callbackSeen=" + callbackSeen);
+          + " registeredCallbacks=" + registered + " callbackSeen=" + callbackSeen);
     } catch (Throwable failure) {
       XposedBridge.log("[DEBUG-startup] bootstrapState phase=" + phase + " unavailable: " + failure);
     }
+  }
+
+  static int registeredCallbackCount(Object callbacks) {
+    return ((Collection<?>) callbacks).size();
   }
 
   private static Object readBootstrapField(Object target, String name) throws ReflectiveOperationException {
