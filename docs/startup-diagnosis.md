@@ -2,6 +2,16 @@
 
 状态：**调查中，尚未证实修复**。只测试一次性 Android API 35 x86_64 模拟器；不测试真机或商业 App，不替换历史测试包。
 
+## 最新：顺序隔离混合 100 轮完成，后置启动第 99 次失败（2026-10-20）
+
+[顺序隔离 39282982075](https://github.com/zty18993716701-ctrl/anti-shake-guard/actions/runs/39282982075)，源码 `3ce7b45`，最终 **FAIL**。完整可用工作流全文已保存，并逐条核验其中的 100 轮混合记录：五类各 20，冷/热/后台 PID 关系、新鲜光线值、保护组零运动、对照组真实运动跳转、广告关闭与普通页均符合原判据。后置的额外启动前 98 次通过，线程记录未见 ForkJoin 工作线程；32 项冒烟和 38 项脚本通过，构建/Lint/Java 任务成功。没有设备归档，不能独立重新计数 Java XML 或确认功能窗口无崩溃。
+
+第 99 次普通页启动超过原 25 秒，Starting Intent 已保留；三条只读取证分别在原 3 秒内超时。北京时间 10 月 20 日 00:31:55 输出原异常，00:35:28 运行器收到关机信号，工件上传步骤被跳过，API 确认零工件。因此**无法下载或核验本次完整设备日志**，也不能排除原生崩溃，更不能将本次失败认定为之前已观测的内核栈。工作流本地保存文本 407,175 字节，SHA-256 和精确索引见 [order-3ce7b45-index.json](evidence/order-3ce7b45-index.json)。恢复未执行，历史第 96 轮原因仍未确认。
+
+顺序变化使混合测试越过第 81 轮并全部完成，支持继续调查累积负载，但不构成因果证明。下一项实验为[独立模拟器双任务 39363717754](https://github.com/zty18993716701-ctrl/anti-shake-guard/actions/runs/39363717754)，源码 `5169129665c7a7eaf8989f0b139a2649a48e45bb`：每套完整 100 轮独占全新模拟器；都保留基线、模块缺失负对照、固定框架、原时限、卸载恢复和完整采集。两任务分别归档且不互相取消，任一失败仍为 FAIL。默认命令行仍支持 `--suite combined` 重放混合后启动的组合流程。无效模式在下载或设备访问前拒绝的用例已先失败后通过；全部 39 项本地脚本测试通过。这是环境隔离实验，不是已验证的产品修复。
+
+English: [Order-isolation run 39282982075](https://github.com/zty18993716701-ctrl/anti-shake-guard/actions/runs/39282982075) remains FAIL. All 100 original mixed-cycle workflow records and 98 subsequent extra startup records were checked against PID, sensor, page and thread requirements. Extra startup 99 hit the original 25-second launch deadline; all three read-only diagnostic queries also timed out at three seconds. The runner shut down before artifact upload, leaving zero device archives. The full available workflow text is saved and hashed, but cannot replace missing crash logs or exclude a native crash. Restoration did not run; old cycle 96 remains unexplained. The next bounded [run 39363717754](https://github.com/zty18993716701-ctrl/anti-shake-guard/actions/runs/39363717754) gives each full suite its own fresh emulator and separate archive, retaining all deadlines, negative controls and restoration. Both are required; failure in one does not cancel the other. The combined CLI remains available. 39 local script tests pass, including a red-to-green invalid-suite boundary test. No product-fix, physical-device or stable-release claim is made.
+
 ## 最新：渲染对照仍失败，改为测试顺序隔离（2026-10-20）
 
 [39189752398](https://github.com/zty18993716701-ctrl/anti-shake-guard/actions/runs/39189752398) 最终 **FAIL**。完整 37 文件 ZIP 和工作流已下载；SHA-256 与 GitHub 摘要一致、CRC 通过。独立核验了 38,965,545 字节实时 logcat 的 START/END、九项诊断的字节数和成功退出码：采集完整，但测试操作失败。45 项 Java、38 项脚本、32 项冒烟、三个模块缺失负对照、100 次额外启动和混合第 1–80 轮通过；恢复未执行。

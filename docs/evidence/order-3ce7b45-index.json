@@ -1,0 +1,56 @@
+{
+  "date": "2026-10-20",
+  "runId": 39282982075,
+  "jobId": 118160996426,
+  "source": "3ce7b4569923a56ea162249966abe0f4b10e0591",
+  "result": "FAIL",
+  "experiment": "Original 100 mixed cycles before the additional 100 normal-page starts, in one emulator",
+  "availableEvidence": {
+    "workflowTextSaved": true,
+    "savedWorkflowBytes": 407175,
+    "savedWorkflowSha256": "08b797f05e874de91702b0b5375c2f1868a8ce94ba78513123886cb1e4475fa9",
+    "workflowBehaviorVerification": "PASS",
+    "deviceArtifacts": 0,
+    "fullDeviceLogs": "UNAVAILABLE: upload step skipped after runner shutdown",
+    "deviceArchiveShaAndCrc": "NOT APPLICABLE: no device archive exists"
+  },
+  "completed": {
+    "mixedCycles": 100,
+    "mixedCounts": {"cold": 20, "warm": 20, "background": 20, "ad": 20, "normal": 20},
+    "extraStartupCycles": 98,
+    "smokeAssertions": 32,
+    "scriptTests": 38,
+    "javaAndLint": "Workflow tasks succeeded; XML unavailable for independent re-count",
+    "forkJoinWorkerStartupCycles": 0,
+    "restoration": "NOT RUN"
+  },
+  "failure": {
+    "suite": "startup",
+    "cycle": 99,
+    "package": "dev.antishake.fixture.protectedapp",
+    "phase": "launch-command",
+    "deadlineSeconds": 25,
+    "partialStartingIntentPreserved": true,
+    "immediateDiagnostics": "Crash buffer, exit info and PID queries all exceeded their 3 second limits",
+    "immediateTriageAtUtc": "2026-10-19T16:31:34.3776143Z",
+    "originalTracebackAtUtc": "2026-10-19T16:31:55.3857345Z",
+    "runnerShutdownAtUtc": "2026-10-19T16:35:28.0269384Z",
+    "unexpectedCrashOrAnr": "UNCONFIRMED: cannot exclude a crash without device logs",
+    "cause": "UNCONFIRMED: timing depends on suite order, but no low-level cause proved",
+    "originalCycle96Cause": "UNCONFIRMED"
+  },
+  "nextExperiment": {
+    "source": "5169129665c7a7eaf8989f0b139a2649a48e45bb",
+    "runId": 39363717754,
+    "status": "IN PROGRESS: both fresh-emulator jobs started",
+    "change": "Fresh independent emulator jobs for lifecycle and startup; both suites remain required",
+    "prediction": "Both standalone suites passing would support combined-load dependence; failure in either remains FAIL and narrows the triggering workload",
+    "preserved": "Fixed module/fixtures/frameworks/renderer, all 100 cycles in each suite, original deadlines, negative controls, restoration and full diagnostics",
+    "evidence": "Separate artifact names; fail-fast false prevents one failed job canceling the other",
+    "combinedEntry": "python3 validation/scripts/ci-embedded-test.py --suite combined",
+    "localScriptTests": 39,
+    "productFix": "NOT CLAIMED"
+  },
+  "physicalDevices": "NOT RUN",
+  "stableRelease": "NOT PUBLISHED"
+}

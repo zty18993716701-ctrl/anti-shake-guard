@@ -65,8 +65,9 @@
     "change": "Move the existing 100 extra startup cycles after the original 100 mixed cycles; omit neither suite",
     "prediction": "If prior startup load is necessary for the cycle-81 stall, mixed cycles should progress beyond 81; later startup failure would still fail the whole run",
     "unchanged": "Module, fixture, frameworks, renderer, all assertions, deadlines, restoration and full evidence capture",
-    "status": "Dispatched; isolation experiment, not a verified fix",
-    "runId": 39282982075
+    "status": "FAIL: 100 mixed cycles and 98 subsequent starts verified in workflow; startup 99 timeout, runner shutdown before device archive upload",
+    "runId": 39282982075,
+    "resultIndex": "order-3ce7b45-index.json"
   },
   "physicalDevices": "NOT RUN",
   "stableRelease": "NOT PUBLISHED"
