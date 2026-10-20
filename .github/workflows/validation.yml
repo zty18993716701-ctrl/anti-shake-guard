@@ -19,7 +19,15 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        suite: [lifecycle, startup]
+        include:
+          - suite: lifecycle
+            trial: 1
+          - suite: startup
+            trial: 1
+          - suite: startup
+            trial: 2
+          - suite: startup
+            trial: 3
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -74,7 +82,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
-          name: validation-${{ github.sha }}-${{ matrix.suite }}
+          name: validation-${{ github.sha }}-${{ matrix.suite }}-${{ matrix.trial }}
           retention-days: 7
           path: |
             validation/guard/build/outputs/apk/debug/*.apk
