@@ -5,8 +5,12 @@ import android.content.ComponentName;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.hardware.Sensor;
+import android.os.Handler;
+import android.os.Looper;
 import android.view.View;
+import java.lang.reflect.Field;
 import java.util.List;
+import java.util.Set;
 import de.robv.android.xposed.IXposedHookLoadPackage;
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XposedBridge;
@@ -17,11 +21,55 @@ import dev.antishake.policy.MotionPolicy;
 
 /** The Xposed manager's user-selected scope is the only package selection authority. */
 public final class GuardModule implements IXposedHookLoadPackage {
+  private boolean callbackSeen;
+
   public GuardModule() {
     XposedBridge.log("[DEBUG-startup] module instance constructed");
+    logBootstrapState("constructed");
+    try {
+      new Handler(Looper.getMainLooper()).post(() -> logBootstrapState("main-queue"));
+    } catch (Throwable failure) {
+      XposedBridge.log("[DEBUG-startup] bootstrapState queue unavailable: " + failure);
+    }
+  }
+
+  // Temporary read-only probe: never realizes a class loader, dispatches a callback or installs a hook.
+  private void logBootstrapState(String phase) {
+    try {
+      Class<?> threadClass = Class.forName("android.app.ActivityThread", false, null);
+      Object thread = threadClass.getDeclaredMethod("currentActivityThread").invoke(null);
+      Object bound = readBootstrapField(thread, "mBoundApplication");
+      Object loadedApk = readBootstrapField(bound, "info");
+      String trackedState;
+      try {
+        Class<?> trackerClass = Class.forName("org.matrix.vector.impl.hookers.LoadedApkTracker", false,
+            XposedBridge.class.getClassLoader());
+        Object tracker = trackerClass.getDeclaredField("INSTANCE").get(null);
+        Set<?> tracked = (Set<?>) trackerClass.getDeclaredMethod("getActiveApks").invoke(tracker);
+        trackedState = String.valueOf(tracked.contains(loadedApk));
+      } catch (Throwable failure) {
+        trackedState = "unavailable:" + failure.getClass().getSimpleName();
+      }
+      Object callbacks = XposedBridge.class.getDeclaredField("sLoadedPackageCallbacks").get(null);
+      Object[] registered = (Object[]) callbacks.getClass().getDeclaredMethod("getSnapshot").invoke(callbacks);
+      XposedBridge.log("[DEBUG-startup] bootstrapState phase=" + phase
+          + " loadedApk=" + System.identityHashCode(loadedApk)
+          + " classLoaderReady=" + (readBootstrapField(loadedApk, "mClassLoader") != null)
+          + " tracked=" + trackedState
+          + " registeredCallbacks=" + registered.length + " callbackSeen=" + callbackSeen);
+    } catch (Throwable failure) {
+      XposedBridge.log("[DEBUG-startup] bootstrapState phase=" + phase + " unavailable: " + failure);
+    }
+  }
+
+  private static Object readBootstrapField(Object target, String name) throws ReflectiveOperationException {
+    Field field = target.getClass().getDeclaredField(name);
+    field.setAccessible(true);
+    return field.get(target);
   }
 
   @Override public void handleLoadPackage(LoadPackageParam app) {
+    callbackSeen = true;
     XposedBridge.log("[DEBUG-startup] callback package=" + app.packageName
         + " appInfo=" + (app.appInfo == null ? "null" : app.appInfo.flags)
         + " classLoader=" + app.classLoader);
