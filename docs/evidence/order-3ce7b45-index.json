@@ -16,7 +16,13 @@
   },
   "completed": {
     "mixedCycles": 100,
-    "mixedCounts": {"cold": 20, "warm": 20, "background": 20, "ad": 20, "normal": 20},
+    "mixedCounts": {
+      "cold": 20,
+      "warm": 20,
+      "background": 20,
+      "ad": 20,
+      "normal": 20
+    },
     "extraStartupCycles": 98,
     "smokeAssertions": 32,
     "scriptTests": 38,
@@ -42,14 +48,15 @@
   "nextExperiment": {
     "source": "5169129665c7a7eaf8989f0b139a2649a48e45bb",
     "runId": 39363717754,
-    "status": "IN PROGRESS: both fresh-emulator jobs started",
+    "status": "COMPLETE: lifecycle PASS with full archive; startup FAIL cycle 24 with actual protection missing in same PID, full archive retained",
     "change": "Fresh independent emulator jobs for lifecycle and startup; both suites remain required",
     "prediction": "Both standalone suites passing would support combined-load dependence; failure in either remains FAIL and narrows the triggering workload",
     "preserved": "Fixed module/fixtures/frameworks/renderer, all 100 cycles in each suite, original deadlines, negative controls, restoration and full diagnostics",
     "evidence": "Separate artifact names; fail-fast false prevents one failed job canceling the other",
     "combinedEntry": "python3 validation/scripts/ci-embedded-test.py --suite combined",
     "localScriptTests": 39,
-    "productFix": "NOT CLAIMED"
+    "productFix": "NOT CLAIMED",
+    "resultIndex": "isolated-5169129-index.json"
   },
   "physicalDevices": "NOT RUN",
   "stableRelease": "NOT PUBLISHED"

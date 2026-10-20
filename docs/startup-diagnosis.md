@@ -2,6 +2,19 @@
 
 状态：**调查中，尚未证实修复**。只测试一次性 Android API 35 x86_64 模拟器；不测试真机或商业 App，不替换历史测试包。
 
+## 最新：独立混合通过，独立启动第 24 次确认保护失效（2026-10-20）
+
+[独立双任务 39363717754](https://github.com/zty18993716701-ctrl/anti-shake-guard/actions/runs/39363717754)，源码 `5169129`，整体 **FAIL**。两份完整 ZIP 和工作流全文已下载；GitHub SHA-256、ZIP CRC、各一段 START/END 覆盖、九项诊断退出码/字节数、Java XML、负对照和行为记录均独立核验，日志完整不改变操作结果。
+
+- 混合任务 **PASS**：原 100 轮（五类各 20）、40 项冒烟、45 项 Java、39 项脚本、三个缺少模块负对照和卸载恢复通过。完整实时 logcat 35,240,997 字节，135 个保护进程各一次构造/回调/安装；功能窗口和独立快照未检出目标崩溃/ANR，未见本轮内核卡顿记录。
+- 启动任务 **FAIL**：前 23 次启动通过，第 24 次 PID `7068` 为 `hook=false`；不重启进程的诊断注入新鲜光线 724 和运动后，同 PID 显示 `sensorCount=2`、`events=19`、`TARGET`、`navigated=true`。这次是实际保护失效，不是普通页标记误报或启动超时。完整实时 logcat 15,477,618 字节；快照按原始字节和顺序包含实时流全部 100,507 条记录。失败 PID 有一次模块构造，但无包加载回调或安装记录；另外 38 个保护进程的三条记录各一次。两份日志未检出目标崩溃/ANR，崩溃缓冲和 tombstones 为空；退出历史是测试安排的 FORCE STOP，恢复验收未执行。只采集了前 23 个成功启动的线程列表，不能据此断言失败 PID 的线程构成。
+
+实际模块两组均为单 DEX，DEX/Manifest/resources 与首个候选完全相同。这表明单 DEX 和独立环境仍不能消除回调漏发，不能仅归因于组合负载。观测边界已收窄到模块对象创建之后、包回调之前；更底层机制及旧第 96 轮/原始 SIGSEGV 的原因仍未证明。精确元数据见 [isolated-5169129-index.json](evidence/isolated-5169129-index.json)。
+
+下一项[只读启动状态诊断 39365232563](https://github.com/zty18993716701-ctrl/anti-shake-guard/actions/runs/39365232563)，源码 `ad9711b9239ddd8e3094bcae6d9461dddb67760e`：在构造阶段和主线程下一次处理队列时读取现有 LoadedApk 的类加载器是否已创建、跟踪集合成员及回调登记数量。它不调用目标 `getClassLoader()`，不重放回调、不提前安装拦截、不改变原判据；读取不到的状态明确记 unavailable。用于区分“过早创建类加载器”与“已登记但未从拦截路径送达回调”。39 项脚本和本地 Java 源码编译通过，但这些不能替代 Android 回调链路验证。临时日志尚未清理，不发布稳定版，不做真机测试。
+
+English: [Fresh-emulator run 39363717754](https://github.com/zty18993716701-ctrl/anti-shake-guard/actions/runs/39363717754) is overall FAIL. Both full archives and workflow logs were downloaded; SHA-256, CRC, coverage markers, all nine diagnostics, XML and behavior records were independently checked. Lifecycle passed 100 mixed cycles, 40 smoke assertions, 45 Java tests, 39 script tests, three module-negative controls and restoration. Startup passed 23 cycles, then failed cycle 24 in PID 7068: the same-process diagnostic observed fresh light 724, real motion events and actual navigation with Hook=false. Complete raw/snapshot records show one constructor but no package callback or hook-install message for this PID; the other 38 protected PIDs each have all three. No unexpected target crash/ANR or observed kernel stall was found in these covered windows. Single-DEX module payloads still match the first candidate, so packing and workload isolation are not a complete repair. The next read-only bootstrap-state experiment is [39365232563](https://github.com/zty18993716701-ctrl/anti-shake-guard/actions/runs/39365232563), with no callback replay, fallback hooks or relaxed deadlines. Low-level causality and the old cycle-96/native failures remain unproved. No physical-device or stable-release claim is made.
+
 ## 最新：顺序隔离混合 100 轮完成，后置启动第 99 次失败（2026-10-20）
 
 [顺序隔离 39282982075](https://github.com/zty18993716701-ctrl/anti-shake-guard/actions/runs/39282982075)，源码 `3ce7b45`，最终 **FAIL**。完整可用工作流全文已保存，并逐条核验其中的 100 轮混合记录：五类各 20，冷/热/后台 PID 关系、新鲜光线值、保护组零运动、对照组真实运动跳转、广告关闭与普通页均符合原判据。后置的额外启动前 98 次通过，线程记录未见 ForkJoin 工作线程；32 项冒烟和 38 项脚本通过，构建/Lint/Java 任务成功。没有设备归档，不能独立重新计数 Java XML 或确认功能窗口无崩溃。
