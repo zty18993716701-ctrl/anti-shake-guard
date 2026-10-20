@@ -2,6 +2,16 @@
 
 状态：**调查中，尚未证实修复**。只测试一次性 Android API 35 x86_64 模拟器；不测试真机或商业 App，不替换历史测试包。
 
+## 最新：两组行为通过，但 500 条探针状态不可用；已修正探针（2026-10-20）
+
+[探针运行 39365232563](https://github.com/zty18993716701-ctrl/anti-shake-guard/actions/runs/39365232563)，源码 `ad9711b`。两组行为测试均 PASS：100 混合轮 / 100 次启动，各 40 项冒烟、45 项 Java、39 项脚本、三个模块缺失负对照及卸载恢复通过。两份完整 38 文件 ZIP 与工作流全文已下载，SHA-256/CRC、START/END、九项诊断退出码/字节数和行为记录独立核验通过。实时 logcat 分别为 34,652,252 与 22,091,799 字节。135 / 115 个保护 PID 各有一次构造、包回调及安装；本轮未复现回调缺失。覆盖窗口和独立快照无目标崩溃/ANR，未检出所检查的内核卡顿信号。
+
+但**诊断目标失败**：250 个 PID 的构造/主队列两阶段共 500 条探针全部 unavailable，异常是 `CopyOnWriteArraySet.getSnapshot` 不存在。运行时回调登记表是标准集合，而我新增的探针错误地假定了框架私有方法；后续类加载器和登记状态没有输出。不能将这些读取异常忽略，也不能凭两项绿灯推断上轮保护失效的根因或修复。只读诊断也可能影响时序；没有失败进程的可用对比状态，原有两个解释仍未区分。
+
+先修正这个已复现的探针错误：将计数改为标准 `Collection.size()`。在实际计数入口用真实 `CopyOnWriteArraySet` 写回归，用例先以相同 `NoSuchMethodException` 失败，修正后通过；增加空集合用例后两个本地 JUnit 用例通过，39 项脚本回归通过。Xposed API JAR 仅添加至测试类路径，不打包进模块。保护逻辑、作用域、框架、两个探针位置和测试时限均未改。下一轮完整 Java 预期为 47 项，不把诊断修复当作产品修复。[修正后复测 39370387308](https://github.com/zty18993716701-ctrl/anti-shake-guard/actions/runs/39370387308)，源码 `8c81d42602611e2bbbd839a84e1e66a7d7cb7306`，尚待 Android 结果及探针健康核验。精确索引：[probe-ad9711b-index.json](evidence/probe-ad9711b-index.json)。
+
+English: [Probe run 39365232563](https://github.com/zty18993716701-ctrl/anti-shake-guard/actions/runs/39365232563) passed both behavior suites and restoration; both full archives passed SHA/CRC, coverage, diagnostics and record verification. All 250 protected PIDs have constructor/callback/install records. However, all 500 state-probe rows failed because our probe called a non-existent getSnapshot method on the runtime CopyOnWriteArraySet. Thus diagnostic outcome is FAIL and the callback-loss hypotheses remain unresolved. A real-registry counter regression reproduced this exact exception before a minimal Collection.size repair; two local JUnit cases and 39 script tests pass. The Xposed JAR is test-only. [Retest 39370387308](https://github.com/zty18993716701-ctrl/anti-shake-guard/actions/runs/39370387308) is pending; protection logic, scope, framework, deadlines and all cycles are unchanged. This repairs instrumentation, not the historical protection failure. No real-device or stable-release claim is made.
+
 ## 最新：独立混合通过，独立启动第 24 次确认保护失效（2026-10-20）
 
 [独立双任务 39363717754](https://github.com/zty18993716701-ctrl/anti-shake-guard/actions/runs/39363717754)，源码 `5169129`，整体 **FAIL**。两份完整 ZIP 和工作流全文已下载；GitHub SHA-256、ZIP CRC、各一段 START/END 覆盖、九项诊断退出码/字节数、Java XML、负对照和行为记录均独立核验，日志完整不改变操作结果。

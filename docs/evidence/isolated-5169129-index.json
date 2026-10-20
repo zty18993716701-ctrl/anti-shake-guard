@@ -17,7 +17,13 @@
     "requiredDiagnostics": 9,
     "allDiagnosticExitCodes": 0,
     "mixedCycles": 100,
-    "counts": {"cold": 20, "warm": 20, "background": 20, "ad": 20, "normal": 20},
+    "counts": {
+      "cold": 20,
+      "warm": 20,
+      "background": 20,
+      "ad": 20,
+      "normal": 20
+    },
     "smokeAssertions": 40,
     "javaTests": 45,
     "scriptTests": 39,
@@ -77,12 +83,16 @@
   "nextDiagnostic": {
     "source": "ad9711b9239ddd8e3094bcae6d9461dddb67760e",
     "runId": 39365232563,
-    "status": "IN PROGRESS",
+    "status": "COMPLETE: both behavior suites PASS, diagnostic FAIL (all 500 state rows unavailable due to our incorrect getSnapshot call on standard registry)",
     "change": "Read-only constructor/main-queue snapshots of existing LoadedApk class-loader state, tracker membership and callback registry",
-    "hypotheses": ["Class loader realized before module callback registration", "Registered callback not dispatched through LoadedApk interception"],
+    "hypotheses": [
+      "Class loader realized before module callback registration",
+      "Registered callback not dispatched through LoadedApk interception"
+    ],
     "restrictions": "No callback replay, no hook fallback, no forced class-loader realization, no timeout or assertion changes",
     "localChecks": "39 script tests and direct Java 8-source/API-35 compilation passed; Android bootstrap behavior remains unverified",
-    "productFix": "NOT CLAIMED"
+    "productFix": "NOT CLAIMED",
+    "resultIndex": "probe-ad9711b-index.json"
   },
   "originalCycle96Cause": "UNCONFIRMED",
   "originalNativeCrashRepair": "UNPROVEN",
