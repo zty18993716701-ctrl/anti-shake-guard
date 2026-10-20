@@ -2,15 +2,36 @@
 
 状态：**调查中，尚未证实修复**。只测试一次性 Android API 35 x86_64 模拟器；不测试真机或商业 App，不替换历史测试包。
 
+## 最新：修正后探针 500 条可用，已核实真实启动顺序（2026-10-20）
+
+[修正后运行 39370387308](https://github.com/zty18993716701-ctrl/anti-shake-guard/actions/runs/39370387308)，源码 `8c81d42`，**行为 PASS，探针读取 PASS**。独立模拟器分别完成 100 混合轮（五类各 20）和 100 次普通页启动；各 40 项冒烟、47 项 Java XML、39 项脚本、三个模块缺失负对照和卸载恢复通过。两份完整 39 文件 ZIP 与工作流全文已下载，SHA-256 与 GitHub 摘要一致、CRC、START/END、九项诊断退出码和字节数、全部行为记录独立核验通过。实时 logcat 为 33,811,799 / 23,243,111 字节；覆盖窗口和独立完整快照未检出目标崩溃/ANR，崩溃缓冲和 tombstones 为空，未检出所检查的内核卡顿信号。两组实际模块为单 DEX，DEX/Manifest/resources 一致。
+
+135 / 115 个保护 PID 均各有一次构造、包回调和安装；两阶段 270 + 230 条探针全部可解析，无 unavailable。每个 PID 两阶段的 LoadedApk 标识相同，也逐一匹配框架自己的初始化对象日志，未发现读错目标对象的证据。全部进程状态一致：
+
+| 阶段 | 类加载器已创建 | 跟踪集合成员 | 已登记回调 | 模块已收到回调 |
+| --- | --- | --- | --- | --- |
+| 模块构造 | false | false | 0 | false |
+| 主队列 | true | false | 1 | true |
+
+**修正前一轮的时序预期：构造时不应预设 tracked=true。** 对与两组记录 SHA 一致的固定 LSPatch release JAR 实际反汇编后确认：`Startup.bootstrapXposed()` 安装框架 Hook，随后立即加载 legacy 模块；它返回之后，`LSPApplication.onLoad()` 才调用 `trackLoadedApk`，再进入“Load modules”记录和 `realizeLoadedApk`。所以构造阶段的 false 是正常的“尚未登记”，主队列的 false 则符合 create-CL Hook 完成后的清理；不能把两次 false 当作中间从未加入过集合。250 个 PID 的日志顺序全部符合这条真实调用链。固定 JAR SHA 为 `d238fdc414d121b7fa454d8b4ccf420df3a8c97d563761861ff92bd9c5da2165`，内部 loader DEX SHA 为 `16f544f449bb75e3147886314a5c3f66b0ef7da53e1e07715efbcbd77bbb70ac`。
+
+这证明探针读取修复已在 Android 中生效，并建立了健康进程的可用对照，**不证明历史第 24 次回调缺失、旧第 96 轮超时或原生崩溃已修复**。当前两阶段没有直接观察跟踪集合中间加入/移除的瞬间；也尚无失败 PID 的可用状态，不能据此在“过早实现类加载器”“登记后绕过 Hook”或“Hook 内未分发”等解释中选定根因。只读诊断仍可能影响时序；不补发回调，不提前安装备用保护。
+
+下一项是有界重复，而非重跑到绿：源码 `d00cd0517cd7053370aab011d4fa0c83ddac4c05` / [39430481021](https://github.com/zty18993716701-ctrl/anti-shake-guard/actions/runs/39430481021)。三组独立新模拟器各 100 次普通页启动，另保留一组原 100 混合轮；每组单独归档，任一失败仍保留 FAIL，互不取消。只改 CI 矩阵和工件 trial 后缀；模块、框架、探针位置、原时限、负对照及恢复规则不变。先验证可用探针下能否再次复现，再决定是否需要更靠近框架分发点的实验。尚在运行，不预报通过。
+
+精确索引：[registry-8c81d42-index.json](evidence/registry-8c81d42-index.json)。完整日志仅保留于 Actions 与本地隔离归档；不公开混入安装包，不替换历史包，不发布稳定版，不做真机测试。
+
+English: [Run 39370387308](https://github.com/zty18993716701-ctrl/anti-shake-guard/actions/runs/39370387308), source `8c81d42`, passed both behavior suites and probe-read health: 100 mixed cycles / 100 starts, 40 smoke assertions, 47 Java tests, 39 script tests, three module-negative controls and restoration per job. Both complete 39-file archives and full workflows were downloaded; SHA/CRC, markers, all nine diagnostics and behavior records were independently verified. All 500 probe rows from 250 protected PIDs are readable; every PID has exactly one constructor, callback and installation. Probe identities match the framework's own initialized LoadedApk record and remain stable across phases. No unexpected target crash/ANR or checked kernel-stall signal was found in these covered records. Actual pinned release bytecode explains constructed tracked=false: bootstrapXposed loads legacy modules before onLoad tracks the target; main-queue false follows cleanup. The previous expectation of constructed tracked=true was wrong. These two observations do not expose the intermediate tracker transition, and no failing-process state is yet available. Thus historical callback loss, old cycle 96 and the native crash remain unresolved; this validates instrumentation, not a product fix. A bounded [run 39430481021](https://github.com/zty18993716701-ctrl/anti-shake-guard/actions/runs/39430481021) now executes three independent 100-start trials and one unchanged 100-cycle lifecycle suite, without behavior retries, relaxed criteria, callback replay or changed module/framework code. Results pending; physical devices remain NOT RUN.
+
 ## 最新：两组行为通过，但 500 条探针状态不可用；已修正探针（2026-10-20）
 
 [探针运行 39365232563](https://github.com/zty18993716701-ctrl/anti-shake-guard/actions/runs/39365232563)，源码 `ad9711b`。两组行为测试均 PASS：100 混合轮 / 100 次启动，各 40 项冒烟、45 项 Java、39 项脚本、三个模块缺失负对照及卸载恢复通过。两份完整 38 文件 ZIP 与工作流全文已下载，SHA-256/CRC、START/END、九项诊断退出码/字节数和行为记录独立核验通过。实时 logcat 分别为 34,652,252 与 22,091,799 字节。135 / 115 个保护 PID 各有一次构造、包回调及安装；本轮未复现回调缺失。覆盖窗口和独立快照无目标崩溃/ANR，未检出所检查的内核卡顿信号。
 
 但**诊断目标失败**：250 个 PID 的构造/主队列两阶段共 500 条探针全部 unavailable，异常是 `CopyOnWriteArraySet.getSnapshot` 不存在。运行时回调登记表是标准集合，而我新增的探针错误地假定了框架私有方法；后续类加载器和登记状态没有输出。不能将这些读取异常忽略，也不能凭两项绿灯推断上轮保护失效的根因或修复。只读诊断也可能影响时序；没有失败进程的可用对比状态，原有两个解释仍未区分。
 
-先修正这个已复现的探针错误：将计数改为标准 `Collection.size()`。在实际计数入口用真实 `CopyOnWriteArraySet` 写回归，用例先以相同 `NoSuchMethodException` 失败，修正后通过；增加空集合用例后两个本地 JUnit 用例通过，39 项脚本回归通过。Xposed API JAR 仅添加至测试类路径，不打包进模块。保护逻辑、作用域、框架、两个探针位置和测试时限均未改。下一轮完整 Java 预期为 47 项，不把诊断修复当作产品修复。[修正后复测 39370387308](https://github.com/zty18993716701-ctrl/anti-shake-guard/actions/runs/39370387308)，源码 `8c81d42602611e2bbbd839a84e1e66a7d7cb7306`，尚待 Android 结果及探针健康核验。精确索引：[probe-ad9711b-index.json](evidence/probe-ad9711b-index.json)。
+先修正这个已复现的探针错误：将计数改为标准 `Collection.size()`。在实际计数入口用真实 `CopyOnWriteArraySet` 写回归，用例先以相同 `NoSuchMethodException` 失败，修正后通过；增加空集合用例后两个本地 JUnit 用例通过，39 项脚本回归通过。Xposed API JAR 仅添加至测试类路径，不打包进模块。保护逻辑、作用域、框架、两个探针位置和测试时限均未改。下一轮完整 Java 预期为 47 项，不把诊断修复当作产品修复。[修正后复测 39370387308](https://github.com/zty18993716701-ctrl/anti-shake-guard/actions/runs/39370387308)，源码 `8c81d42602611e2bbbd839a84e1e66a7d7cb7306`，已完成 Android 结果及探针健康核验，见上节。精确索引：[probe-ad9711b-index.json](evidence/probe-ad9711b-index.json)。
 
-English: [Probe run 39365232563](https://github.com/zty18993716701-ctrl/anti-shake-guard/actions/runs/39365232563) passed both behavior suites and restoration; both full archives passed SHA/CRC, coverage, diagnostics and record verification. All 250 protected PIDs have constructor/callback/install records. However, all 500 state-probe rows failed because our probe called a non-existent getSnapshot method on the runtime CopyOnWriteArraySet. Thus diagnostic outcome is FAIL and the callback-loss hypotheses remain unresolved. A real-registry counter regression reproduced this exact exception before a minimal Collection.size repair; two local JUnit cases and 39 script tests pass. The Xposed JAR is test-only. [Retest 39370387308](https://github.com/zty18993716701-ctrl/anti-shake-guard/actions/runs/39370387308) is pending; protection logic, scope, framework, deadlines and all cycles are unchanged. This repairs instrumentation, not the historical protection failure. No real-device or stable-release claim is made.
+English: [Probe run 39365232563](https://github.com/zty18993716701-ctrl/anti-shake-guard/actions/runs/39365232563) passed both behavior suites and restoration; both full archives passed SHA/CRC, coverage, diagnostics and record verification. All 250 protected PIDs have constructor/callback/install records. However, all 500 state-probe rows failed because our probe called a non-existent getSnapshot method on the runtime CopyOnWriteArraySet. Thus diagnostic outcome is FAIL and the callback-loss hypotheses remain unresolved. A real-registry counter regression reproduced this exact exception before a minimal Collection.size repair; two local JUnit cases and 39 script tests pass. The Xposed JAR is test-only. [Retest 39370387308](https://github.com/zty18993716701-ctrl/anti-shake-guard/actions/runs/39370387308) completed with all 500 probe states readable, as documented above; protection logic, scope, framework, deadlines and all cycles are unchanged. This repairs instrumentation, not the historical protection failure. No real-device or stable-release claim is made.
 
 ## 最新：独立混合通过，独立启动第 24 次确认保护失效（2026-10-20）
 

@@ -77,7 +77,7 @@
   "diagnosticRepair": {
     "source": "8c81d42602611e2bbbd839a84e1e66a7d7cb7306",
     "runId": 39370387308,
-    "status": "IN PROGRESS",
+    "status": "COMPLETE: behavior PASS and all 500 corrected probe states readable; exact metadata in registry-8c81d42-index.json",
     "change": "Count the observed runtime Collection via size(); Xposed API jar added to test classpath only",
     "red": "Actual counter with CopyOnWriteArraySet failed with the same NoSuchMethodException",
     "green": "Two direct JUnit registry-count cases pass; 39 script tests pass",
