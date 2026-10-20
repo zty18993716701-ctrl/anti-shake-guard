@@ -16,6 +16,10 @@ jobs:
   build-and-baseline:
     runs-on: ubuntu-latest
     timeout-minutes: 35
+    strategy:
+      fail-fast: false
+      matrix:
+        suite: [lifecycle, startup]
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -65,12 +69,12 @@ jobs:
           ram-size: 2048M
           emulator-boot-timeout: 300
           emulator-options: -no-window -gpu swiftshader -no-snapshot -noaudio -no-boot-anim
-          script: python3 validation/scripts/ci-embedded-test.py
+          script: python3 validation/scripts/ci-embedded-test.py --suite ${{ matrix.suite }}
       - name: Keep debug APKs and validation evidence
         if: always()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
-          name: validation-${{ github.sha }}
+          name: validation-${{ github.sha }}-${{ matrix.suite }}
           retention-days: 7
           path: |
             validation/guard/build/outputs/apk/debug/*.apk

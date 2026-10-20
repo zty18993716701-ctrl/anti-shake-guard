@@ -1,6 +1,11 @@
 #!/usr/bin/env bash
 # Only patches this repository's disposable fixture, never a third-party APK.
 set -euo pipefail
+suite="${1:-combined}"
+case "$suite" in
+  combined|lifecycle|startup) ;;
+  *) echo "Unknown embedded suite: $suite" >&2; exit 2 ;;
+esac
 validation_dir="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$validation_dir"
 mkdir -p build/lspatch build/device-evidence
@@ -30,12 +35,16 @@ for iteration in 1 2 3; do
 done
 
 # Same loaded module, repeated real lifecycle transitions; bounded to 15 minutes.
-timeout 900s python3 -u scripts/emulator-lifecycle.py --serial emulator-5554 2>&1 \
-  | tee build/device-evidence/lspatch-lifecycle.jsonl
+if [[ "$suite" != startup ]]; then
+  timeout 900s python3 -u scripts/emulator-lifecycle.py --serial emulator-5554 2>&1 \
+    | tee build/device-evidence/lspatch-lifecycle.jsonl
+fi
 
 # Order-only isolation: retain all 100 extra starts, after the original 100 mixed cycles.
-timeout 900s python3 -u scripts/emulator-lifecycle.py --serial emulator-5554 --startup-only 2>&1 \
-  | tee build/device-evidence/lspatch-startup.jsonl
+if [[ "$suite" != lifecycle ]]; then
+  timeout 900s python3 -u scripts/emulator-lifecycle.py --serial emulator-5554 --startup-only 2>&1 \
+    | tee build/device-evidence/lspatch-startup.jsonl
+fi
 
 # Prove removal restores motion/navigation, not a permanently disabled fixture.
 adb -s emulator-5554 uninstall dev.antishake.fixture.protectedapp
